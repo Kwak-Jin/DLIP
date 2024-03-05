@@ -3,8 +3,9 @@
  * @created 24/03/03
  * @modified NONE
  */
-#include "opencv2/opencv.hpp"
+
 #include <iostream>
+#include "opencv.hpp"
 
 using namespace cv;
 using namespace std;
@@ -19,18 +20,19 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	namedWindow("MyVideo",WINDOW_AUTOSIZE); //create a window called "MyVideo"
-
-	while (1)
-	{
+	Mat grey;
+	Mat Cann;
+	while (1){
 		Mat frame;
 		bool bSuccess = cap.read(frame); // read a new frame from video
-		if (!bSuccess) //if not success, break loop
-		{
+		if (!bSuccess){ /*if not success, break loop*/
 			cout << "Cannot read a frame from video stream" << endl;
 			break;
 		}
-		imshow("MyVideo", frame); //show the frame in "MyVideo" window
-
+		cvtColor(frame,grey,COLOR_BGR2GRAY);
+		Canny(grey,Cann,30,120,3, false);
+		imshow("MyVideo", Cann); //show the frame in "MyVideo" window
+		//imshow("MyVideo",Cann);
 		if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
 		{
 			cout << "esc key is pressed by user" << endl;
