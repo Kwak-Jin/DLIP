@@ -1,19 +1,21 @@
-/**
-*
+/** @brief C++ Tutorial
+*   @author Jin Kwak
+*   @created 2024/03/08
+*   @modified 2024/03/08
 */
 
 #include <iostream>
+#include "TU_DLIP.hpp"
 
-double sum(double a, double b);
-
-int main(){
-	double A = 10.;
-	double B = 20.;
-	double C = sum(A,B);
-	std::cout<<"The Sum ="<<C<<std::endl;
-	return 0;
+template<typename T>
+T Sum(T a, T b){
+	return a+b;
 }
 
-double sum(double a,double b){
-	return a+b;
+int main(){
+	int A = 10;
+	int B = 20;
+	int C = sum(A,B);
+	std::cout<<"The Sum ="<<C<<std::endl;
+	return 0;
 }

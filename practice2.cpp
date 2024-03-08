@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 			break;
 		}
 		cvtColor(frame,grey,COLOR_BGR2GRAY);
-		Canny(grey,Cann,30,120,3, false);
+		Canny(grey,Cann,30,120,3,false);
 		imshow("MyVideo", Cann); //show the frame in "MyVideo" window
 		//imshow("MyVideo",Cann);
 		if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop

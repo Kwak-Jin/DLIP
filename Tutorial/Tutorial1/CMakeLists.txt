@@ -1,3 +1,6 @@
-set(SOURCE Tutorial1.cpp)
+set(SOURCE Tutorial1.cpp
+        TU_DLIP.cpp)
 
-add_executable(Tutorial1__C++ ${SOURCE})
+set(HEADER TU_DLIP.hpp)
+
+add_executable(Tutorial1__C++ ${SOURCE} ${HEADER})

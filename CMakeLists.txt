@@ -17,6 +17,8 @@ set(SOURCE2 practice2.cpp)
 add_executable(practice1 ${SOURCE1})
 add_executable(practice2 ${SOURCE2})
 
+file(COPY Image DESTINATION ${CMAKE_BINARY_DIR})
+
 #Always make subdirectory for the associated folder e.g. assignments/LAB/projects
 #add_subdirectory(Assignment)
 #add_subdirectory(Include)
