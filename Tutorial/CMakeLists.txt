@@ -3,3 +3,5 @@ add_subdirectory(Tutorial1)
 add_subdirectory(DLIP_Tutorial_OpenCV_Image)
 
 add_subdirectory(DLIP_Tutorial_OpenCV_EX2)
+
+add_subdirectory(DLIP_Tutorial_spatial_filter)

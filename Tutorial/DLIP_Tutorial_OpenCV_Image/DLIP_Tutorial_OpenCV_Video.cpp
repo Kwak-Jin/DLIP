@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace cv;
+#define DELAY 100
 
 int main()
 {
@@ -19,6 +20,8 @@ int main()
 	Mat frame;
 	Mat flippedFrame;
 	int isFlip = 1;
+
+
 	while (1){
 
 		/*  read a new frame from video  */
@@ -29,13 +32,15 @@ int main()
 			cout << "Cannot find a frame from  video stream\n";
 			break;
 		}
+
 		flip(frame,flippedFrame,isFlip);
 		imshow("MyVideo", flippedFrame);
+
 		if(waitKey(30)=='h'){
-			isFlip *= -1;
+			if (isFlip == 1) isFlip = 0;
+			else if(isFlip == 0) isFlip = 1;
 		}
-		if (waitKey(30) == 27)
-		{
+		else if (waitKey(30) == 27){
 			cout << "ESC key is pressed by user\n";
 			break;
 		}
