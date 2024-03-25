@@ -5,3 +5,7 @@ add_subdirectory(DLIP_Tutorial_OpenCV_Image)
 add_subdirectory(DLIP_Tutorial_OpenCV_EX2)
 
 add_subdirectory(DLIP_Tutorial_spatial_filter)
+
+add_subdirectory(DLIP_Tutorial_Thresholding_Morphology)
+
+#add_subdirectory()

@@ -1,6 +1,6 @@
-set(SOURCE1 filter_demo_21900031_jinkwak.cpp)
-set(SOURCE2 filter_demo_webcam_21900031_jinkwak.cpp)
+set(FILTER1 filter_demo_21900031_jinkwak.cpp)
+set(FILTER2 filter_demo_webcam_21900031_jinkwak.cpp)
 
-add_executable(FilterImage ${SOURCE1})
+add_executable(FilterImage ${FILTER1})
 
-add_executable(FilterWeb  ${SOURCE2})
+add_executable(FilterWeb  ${FILTER2})

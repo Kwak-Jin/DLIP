@@ -10,17 +10,13 @@ set(OpenCV_INCLUDE_DIRS ${OpenCV_INCLUDE_DIRS}/opencv2)
 include_directories(${OpenCV_INCLUDE_DIRS})
 link_libraries(${OpenCV_LIBS})
 
-set(SOURCE1 practice1.cpp)
-set(SOURCE2 practice2.cpp)
-
-#Test Sources
-add_executable(practice1 ${SOURCE1})
-add_executable(practice2 ${SOURCE2})
-
 file(COPY Image DESTINATION ${CMAKE_BINARY_DIR})
 
 #Always make subdirectory for the associated folder e.g. assignments/LAB/projects
 #add_subdirectory(Assignment)
-#add_subdirectory(Include)
+add_subdirectory(Include)
+link_directories(Include)
+include_directories(Include)
+link_libraries(Include)
 add_subdirectory(Tutorial)
-#add_subdirectory(LAB)
+add_subdirectory(LAB)

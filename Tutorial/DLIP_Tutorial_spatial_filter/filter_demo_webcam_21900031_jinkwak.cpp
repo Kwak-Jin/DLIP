@@ -13,13 +13,13 @@ enum FILTER_TYPE{
 	Blur = 1,
 	Gaussian = 2,
 	Median = 3,
-	Laplacian = 4
+	Laplacian = 4,
+	Bilateral = 5
 };
 
 using namespace std;
 
-int main()
-{
+int main(){
 	/*  open the video camera no.0  */
 	cv::VideoCapture cap(0);
 
@@ -47,22 +47,20 @@ int main()
 				cout << "ESC key is pressed by user\n";
 				break;
 			}
-			else if (key == 'b' || key == 'B')	filter_type = Blur;
-			else if(key == 'g'|| key =='G')     filter_type = Gaussian;
-			else if(key =='m'|| key =='M')      filter_type = Median;
-			else if(key == 'L'||key == 'l')     filter_type = Laplacian;
-			else if(key == 'D'||key =='d')      filter_type = Default;
-			else if(key == 'U'||key =='u') {
-				if(cv::waitKey(30)== 'P'||cv::waitKey(30)== 'p') kernel_size+=2;
-			}
-			else if(key == ' ' && kernel_size >3)  kernel_size-=2;
-			else                                filter_type = filter_type;
+			else if(key == 'b'|| key == 'B')	filter_type = Blur     ;
+			else if(key == 'g'|| key =='G' )    filter_type = Gaussian ;
+			else if(key == 'm'|| key =='M' )    filter_type = Median   ;
+			else if(key == 'L'|| key == 'l')    filter_type = Laplacian;
+			else if(key == 'D'|| key =='d' )    filter_type = Default  ;
+			else if(key == '1'|| key =='!' )    filter_type = Bilateral;
+			else if(key == 'U'|| key =='u' )      kernel_size+=2       ;
+			else if(key == ' '&&kernel_size >3)   kernel_size-=2       ;
 		}
 		else filter_type= filter_type;
 
 		switch(filter_type){
 			case Blur:
-				cv::blur(src, dst, cv::Size(kernel_size, kernel_size), cv::Point(-1, -1));
+				cv::blur(src, dst, cv::Size(kernel_size, kernel_size));
 				cout<< "Blur"<<endl;
 				break;
 			case Gaussian:
@@ -74,9 +72,16 @@ int main()
 				cout<< "Median"<<endl;
 				break;
 			case Laplacian:
-				cv::Laplacian(src, dst, CV_16S, 3, 1, 0, cv::BORDER_DEFAULT);
+				cv::Laplacian(src, dst, CV_16S, kernel_size, 1, 0, cv::BORDER_DEFAULT);
+				src.convertTo(src, CV_16S);
+				dst = src- dst;
+				dst. convertTo(dst,CV_8U);
 				cout<< "Laplacian"<<endl;
 				break;
+			//case Bilateral:
+			//	cv::bilateralFilter(src,dst, kernel_size, 3,kernel_size);
+			//	cout<< "Bilateral"<<endl;
+			//	break;
 			default:
 				dst = src;
 				cout<< "Default"<<endl;
@@ -86,33 +91,3 @@ int main()
 	}
 	return 0;
 }
-
-//#include <iostream>
-//#include <opencv.hpp>
-//
-//using namespace std;
-//using namespace cv;
-//
-//int main()
-//{
-//	/*  read image  */
-//	Mat img = imread("D:\\DLIP\\Image\\HGU_logo.jpg");
-//	imshow("img", img);
-//
-//	/*  Crop(Region of Interest)  */
-//	Rect r(10, 10, 150, 150);	 // (x, y, width, height)
-//	Mat roiImg = img(r);
-//	imshow("roiImg", roiImg);
-//
-//	/*  Rotate  */
-//	Mat rotImg;
-//	rotate(img, rotImg, ROTATE_90_CLOCKWISE);
-//	imshow("rotImg", rotImg);
-//
-//	/*  Resize  */
-//	Mat resizedImg;
-//	resize(img, resizedImg, Size(1000, 100));
-//	imshow("resizedImg", resizedImg);
-//
-//	waitKey(0);
-//}

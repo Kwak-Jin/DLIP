@@ -48,7 +48,6 @@ int main(){
 	namedWindow("Laplacian", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Laplacian", result_laplcaian);
 
-
 	/* 2D Convolution of a filter kernel */
 	/* Design a normalized box filter kernel 5 by 5 */
 	src.convertTo(src, CV_8UC1);
@@ -58,8 +57,10 @@ int main(){
 	ddepth = -1;
 	kernel_size = 5;
 	cv::Point anchor = cv::Point(-1, -1);
-	//namedWindow("Conv2D", cv::WINDOW_AUTOSIZE);
-	//cv::imshow("Conv2D", dst_2Dconv);
+	kernel = cv::Mat::ones(kernel_size,kernel_size,CV_32F)/(kernel_size*kernel_size);
+	cv::filter2D(src,dst_2Dconv,ddepth,kernel);
+	namedWindow("Conv2D", cv::WINDOW_AUTOSIZE);
+	cv::imshow("Conv2D", dst_2Dconv);
 
 
 	cv::waitKey(0);
