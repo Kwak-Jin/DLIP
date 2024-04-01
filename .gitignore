@@ -153,7 +153,7 @@ fabric.properties
 
 ### Images ###
 # JPEG
-*.jpg
+#*.jpg
 *.jpeg
 *.jpe
 *.jif
@@ -183,7 +183,7 @@ fabric.properties
 *.webp
 
 # Portable Network Graphics
-*.png
+#*.png
 
 # Animated Portable Network Graphics
 *.apng
@@ -200,7 +200,7 @@ fabric.properties
 *.svgz
 
 # Portable Document Format
-*.pdf
+#*.pdf
 
 # X BitMap
 *.xbm
