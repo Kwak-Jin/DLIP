@@ -1,3 +1,2 @@
-set(SOURCE DLIP_LAB1_21900031_JinKwak.cpp)
-
-add_executable(LAB1 ${SOURCE})
+add_subdirectory(LAB1)
+add_subdirectory(LAB2)

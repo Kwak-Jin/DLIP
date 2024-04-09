@@ -8,6 +8,9 @@ add_subdirectory(DLIP_Tutorial_spatial_filter)
 
 add_subdirectory(DLIP_Tutorial_Thresholding_Morphology)
 
+add_subdirectory(DLIP_Tutorial_Cam_calibration)
+
 add_subdirectory(DLIP_Tutorial_Edge_Line_Circle_Detection)
 
+add_subdirectory(DLIP_Tutorial_ColorImageProcessing)
 #add_subdirectory()

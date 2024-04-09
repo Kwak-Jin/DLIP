@@ -1,0 +1,1 @@
+add_executable(ColorProcessing DLIP_Tutorial_ColorProcessing.cpp)
