@@ -1,8 +1,8 @@
 /**
 * @about LAB2 Dimension measurement with 2D Camera
-* @author Jin Kwak / 21900031, Mantec Ignacio / 22320052
+* @author Jin Kwak / 21900031, Ignacio / 22320052
 * @created 2024.04.09
-* @modified 2024.
+* @modified 2024.04.12
 */
 #include <iostream>
 #include <opencv.hpp>
@@ -41,8 +41,8 @@ double SmallRectSize[N_PARAM] = {0,};
 int main(){
 	// Camera Calibration Data
 	cameraParam param("iPhone13.xml");
-	cv::Mat src           ;
-	cv::Mat undistortedSrc;
+	cv::Mat src							  ;
+	cv::Mat undistortedSrc				  ;
 	undistortedSrc = param.undistort(src);
 	return 0;
 }
