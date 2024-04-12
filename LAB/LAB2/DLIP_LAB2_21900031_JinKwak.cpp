@@ -7,6 +7,8 @@
 #include <iostream>
 #include <opencv.hpp>
 #include <string>
+#include "cameraParam.h"
+
 enum PARAM{
 	LENGTH  = 1,
 	HEIGHT  = 2,
@@ -27,7 +29,7 @@ enum PIXEL_FRAME{
 	N_PIX   = 2
 };
 
-inline double GetArea(double* X){
+inline double GetVolume(double* X){
 	double Area = 1;
 	for(int idx = 0; idx<N_PARAM; idx++) Area*= X[idx];
 	return Area;
@@ -37,6 +39,10 @@ double BigRectSize[N_PARAM]   = {0,};
 double SmallRectSize[N_PARAM] = {0,};
 
 int main(){
-
+	// Camera Calibration Data
+	cameraParam param("iPhone13.xml");
+	cv::Mat src           ;
+	cv::Mat undistortedSrc;
+	undistortedSrc = param.undistort(src);
 	return 0;
 }
