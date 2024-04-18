@@ -1,0 +1,1 @@
+add_executable(TEST_Practice Practice_Test.cpp)

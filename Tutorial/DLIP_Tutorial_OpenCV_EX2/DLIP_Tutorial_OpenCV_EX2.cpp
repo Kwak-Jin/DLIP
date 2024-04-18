@@ -20,5 +20,5 @@ int main(){
 		}
 	}
 	intensity = (double)(intensity/N_size);
-	std::cout<<"intensity = "<<intensity<<std::endl;
+	std::cout<<"Average intensity = "<<intensity<<std::endl;
 }

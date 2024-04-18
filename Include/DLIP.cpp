@@ -57,7 +57,7 @@ void showGrayImgHist(cv::Mat src){
 	int bin_w = cvRound((double)hist_w / number_bins);
 
 	cv::Mat hist_img(hist_h, hist_w, CV_8UC1, cv::Scalar::all(255));
-	normalize(hist, hist, 0, hist_img.rows, cv::NORM_MINMAX, -1, cv::Mat());
+	cv::normalize(hist, hist, 0, hist_img.rows, cv::NORM_MINMAX, -1, cv::Mat());
 
 	for (int i = 1; i < number_bins; i++){
 		cv::line(hist_img, cv::Point(bin_w * (i - 1), hist_h - cvRound(hist.at<float>(i - 1))),
@@ -79,4 +79,36 @@ void showGrayImgHist(cv::Mat src){
 void image(cv::String str, cv::Mat mat){
 	cv::namedWindow(str, cv::WINDOW_AUTOSIZE);
 	cv::imshow(str,mat);
+}
+
+
+// /**
+//  *
+//  * @param img source to set roi
+//  * @param xratio x direction cut ratio
+//  * @param yratio y direction cut ratio
+//  * @param x start pixel x
+//  * @param y start pixel y
+//  */
+// void setROI(cv::Mat img, double xratio, double yratio, int x, int y){
+// 	cv::Rect regionofInterest(x,y, ((int)(img.rows*xratio)),((int)(img.cols*yratio)));
+// 	if(x+ ((int)(img.rows*xratio))>= img.rows || y+ ((int)(img.cols*yratio))) img = img;
+// 	else img = img(regionofInterest);
+// }
+
+/**
+ * @param _img BGR Image source
+ * @param _threshVal1 Lower Threshold Value
+ * @param _threshVal2 Upper Threshold Value(Usually 255)
+ * @brief Contours(Yellow) on Original Source Image
+ */
+void CVcontour(cv::Mat _img,int _threshVal1,int _threshVal2){
+	cv::Mat gray, thresh;
+	cv::cvtColor(_img, gray, cv::COLOR_BGR2GRAY);
+	cv::threshold(gray, thresh, _threshVal1, _threshVal2, cv::THRESH_BINARY);
+	std::vector<std::vector<cv::Point>> contours;
+	std::vector<cv::Vec4i> hierarchy;
+	findContours(thresh, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+	drawContours(_img, contours, -1, cv::Scalar(0, 255, 255), 2);
+
 }

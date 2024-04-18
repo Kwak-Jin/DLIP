@@ -105,8 +105,10 @@ void func_Contour(void){
 	cv::findContours(dst_morph,contours,
 					 hierarchy,cv::RETR_CCOMP,cv::CHAIN_APPROX_SIMPLE);
 	std::vector<bool> ignore_contour(contours.size(),false);
+
 	cv::drawContours(contour,contours,
 					 -1,cv::Scalar (0),cv::FILLED);
+
 	int contourSize = contours.size();          //Number of Contours
 	double arc_length =  0;                     //Length of the contour box
 	cv::Rect FalseDetect[contourSize];
@@ -120,6 +122,7 @@ void func_Contour(void){
 			else if((FalseDetect[rectA]&FalseDetect[rectB])== FalseDetect[rectB]) ignore_contour[rectB] = true;
 		}
 	}
+
 
 	/* Print out the number of contours*/
 	std::cout<<"The number of detected Industrial components: "<<contourSize<<std::endl;

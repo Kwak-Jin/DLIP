@@ -38,7 +38,7 @@ int main(){
 	cv::createTrackbar("Vmin", "Source", &vmin, 255, 0);
 	cv::createTrackbar("Vmax", "Source", &vmax, 255, 0);
 
-	cv::VideoCapture cap(0);
+	cv::VideoCapture cap("D:\\DLIP\\MidTerm2024_student\\MIDTERM_SourceVideo.mp4");
 	if (!cap.isOpened()){	// if not success, exit the programm
 		std::cout << "Cannot open the video cam\n";
 		return -1;
@@ -50,11 +50,12 @@ int main(){
 			std::cout << "Cannot find a frame from  video stream\n";
 			break;
 		}
+		GaussianBlur(image,image,cv::Size(13,13), 0,0);
+
 		/******** Convert BGR to HSV ********/
 		cv::cvtColor(image,hsv,cv::COLOR_BGR2HSV);
 		cv::imshow("Source",image);
 		/******** Add Pre-Processing such as filtering etc  ********/
-
 
 		/// set dst as the output of InRange
 		inRange(hsv, cv::Scalar(MIN(hmin, hmax), MIN(smin, smax), MIN(vmin, vmax)),
