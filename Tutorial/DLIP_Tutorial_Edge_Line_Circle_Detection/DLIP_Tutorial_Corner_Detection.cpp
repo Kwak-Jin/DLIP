@@ -43,7 +43,7 @@ void cornerHarris_demo( int, void* )
 		{
 			if( (int) dst_norm.at<float>(i,j) > thresh )
 			{
-				circle( dst_norm_scaled, Point(j,i), 4,  Scalar(0), 2, 8, 0 );
+				cv::circle( dst_norm_scaled, Point(j,i), 4,  Scalar(0), 2, 8, 0 );
 			}
 		}
 	}

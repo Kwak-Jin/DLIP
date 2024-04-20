@@ -16,7 +16,6 @@ def main():
     cv.imshow('dst', dst)
     cv.waitKey(0)
 
-
 if __name__ == '__main__':
     print(__doc__)
     main()

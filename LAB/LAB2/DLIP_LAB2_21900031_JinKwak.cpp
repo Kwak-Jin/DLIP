@@ -58,6 +58,8 @@ std::vector<cv::Point2f> srcPoints;
 std::vector<cv::Point2f> dstPoints;
 cv::Mat perspectiveMatrix;
 cv::Mat WarpOut;
+cv::Mat thresh;
+
 // Contour Variables
 std::vector<std::vector<cv::Point>> contours;
 std::vector<cv::Vec4i> hierarchy;
@@ -68,22 +70,23 @@ void showImg(void);
 void lineDetection(void);
 
 int main(){
-	src = cv::imread("../../Image/LAB2/Parallel5.jpg",1);
+	src = cv::imread("../../Image/LAB2/Front5.jpg",1);
 	undistort();
-
 	warpPerspectiveTransform();
-	cv::warpPerspective(undistortedSrc, WarpOut, perspectiveMatrix, cv::Size(400, 100));
+	// Filter
+	for(int idx = 0; idx<10; idx++) cv::medianBlur(WarpOut,WarpOut,5);
+	// Edge
+	cv::Canny(WarpOut,Edge,60,170);
 
-	for(int idx = 0; idx<8; idx++) cv::medianBlur(WarpOut,WarpOut,3);
-	cv::Canny(WarpOut,Edge,60,120);
+	cv::threshold(Edge, thresh, 100, 255, cv::THRESH_BINARY);
+	// cv::morphologyEx(thresh,thresh,cv::MORPH_CLOSE,cv::Mat());
+	// cv::morphologyEx(thresh,thresh,cv::MORPH_ERODE,cv::Mat());
+	// Hough
 	// lineDetection();
 
-	cv::Mat thresh;
-	cv::threshold(Edge, thresh, 50, 255, cv::THRESH_BINARY);
-
-	findContours(thresh, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+	findContours(thresh, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 	cv::cvtColor(WarpOut, WarpOut,cv::COLOR_GRAY2BGR);
-	drawContours(WarpOut, contours, -1, cv::Scalar(255,0,255), 1);
+	drawContours(WarpOut, contours, -1, cv::Scalar(0,0,255), 1);
 
 	showImg();
 	cv::waitKey(0);
@@ -106,8 +109,9 @@ void undistort(void){
 	cv::cvtColor(undistortedSrc,undistortedSrc , cv::COLOR_BGR2GRAY);
 }
 
-// This is Parallel3
-/*void warpPerspectiveTransform(void){
+
+/* // This is Parallel3
+void warpPerspectiveTransform(void){
 	srcPoints.push_back(cv::Point2f(836, 1620));     // top-left		836, 1620
 	srcPoints.push_back(cv::Point2f(3249, 1595 ));    // top-right		3249, 1595
 	srcPoints.push_back(cv::Point2f(1013, 1911));     // bottom-left		1013, 1911
@@ -122,24 +126,59 @@ void undistort(void){
 	std::cout<<perspectiveMatrix<<std::endl;
 }*/
 
-// Parallel 5
+/*// Parallel 5
 void warpPerspectiveTransform(void){
-	srcPoints.push_back(cv::Point2f(1003, 1896 ));    // top-left		836, 1620
-	srcPoints.push_back(cv::Point2f(3244, 1969 ));    // top-right		3249, 1595
-	srcPoints.push_back(cv::Point2f(1147, 2135 ));    // bottom-left	1013, 1911
-	srcPoints.push_back(cv::Point2f(3121, 2194 ));    // bottom-right	3115, 1911
+	srcPoints.push_back(cv::Point2f(1215, 1111));//1003, 1896 ));
+	srcPoints.push_back(cv::Point2f(3463, 1111));//3244, 1969 ));
+	srcPoints.push_back(cv::Point2f(1002, 1919));//1147, 2135 ));
+	srcPoints.push_back(cv::Point2f(3656, 1987));//3121, 2194 ));
+
+	dstPoints.push_back(cv::Point2f(0, 0     ));      // top-left
+	dstPoints.push_back(cv::Point2f(800, 0   ));      // top-right
+	dstPoints.push_back(cv::Point2f(0, 800   ));      // bottom-left
+	dstPoints.push_back(cv::Point2f(800, 800 ));      // bottom-right
+	perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
+	cv::warpPerspective(undistortedSrc, WarpOut, perspectiveMatrix, cv::Size(800, 800));
+
+	std::cout<<perspectiveMatrix<<std::endl;
+}*/
+
+/* // Upper1
+void warpPerspectiveTransform(void){
+	srcPoints.push_back(cv::Point2f(927, 832));
+	srcPoints.push_back(cv::Point2f(2219, 840));
+	srcPoints.push_back(cv::Point2f(931, 3345));
+	srcPoints.push_back(cv::Point2f(2156, 3337));
 
 	dstPoints.push_back(cv::Point2f(0, 0     ));      // top-left
 	dstPoints.push_back(cv::Point2f(400, 0   ));      // top-right
-	dstPoints.push_back(cv::Point2f(0, 100   ));      // bottom-left
-	dstPoints.push_back(cv::Point2f(400, 100 ));      // bottom-right
+	dstPoints.push_back(cv::Point2f(0, 800   ));      // bottom-left
+	dstPoints.push_back(cv::Point2f(400, 800 ));      // bottom-right
 	perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
+	cv::warpPerspective(undistortedSrc, WarpOut, perspectiveMatrix, cv::Size(400, 800));
+
+	std::cout<<perspectiveMatrix<<std::endl;
+}*/
+
+//Front5
+void warpPerspectiveTransform(void){
+	srcPoints.push_back(cv::Point2f(967, 979));
+	srcPoints.push_back(cv::Point2f(3087, 977));
+	srcPoints.push_back(cv::Point2f(967, 1523));
+	srcPoints.push_back(cv::Point2f(3076, 1523));
+
+	dstPoints.push_back(cv::Point2f(0, 0     ));      // top-left
+	dstPoints.push_back(cv::Point2f(800, 0   ));      // top-right
+	dstPoints.push_back(cv::Point2f(0, 200   ));      // bottom-left
+	dstPoints.push_back(cv::Point2f(800, 200 ));      // bottom-right
+	perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
+	cv::warpPerspective(undistortedSrc, WarpOut, perspectiveMatrix, cv::Size(800, 200));
 
 	std::cout<<perspectiveMatrix<<std::endl;
 }
 void lineDetection(){
 	std::vector<cv::Vec2f> lines;
-	cv::HoughLines(Edge, lines, 1, CV_PI / 180, 120, 0, 0);
+	cv::HoughLines(thresh, lines, 1, CV_PI / 180, 160, 0, 0);
 	// Draw the detected lines
 	for (cv::Vec2f line: lines){
 		float rho = line[0], theta = line[1];
@@ -157,8 +196,9 @@ void lineDetection(){
 void showImg(){
 	cv::namedWindow("Undistort",cv::WINDOW_GUI_NORMAL);
 	cv::imshow("Undistort", undistortedSrc);
-	cv::namedWindow("Warped", cv::WINDOW_GUI_NORMAL);
+	cv::namedWindow("Warped", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Warped",WarpOut);
-	cv::namedWindow("Edge",cv::WINDOW_GUI_NORMAL);
+	cv::namedWindow("Edge",cv::WINDOW_AUTOSIZE);
 	cv::imshow("Edge", Edge);
+	cv::imshow("Thresh", thresh);
 }
