@@ -9,8 +9,8 @@
 #include <string>
 #define BLOCK_SIZE		(int)(2)
 #define APERTURE_SIZE	(int)(3)
-#define CORNER_COEFF     (double)(0.001)
-#define MAX_CLUSTER      (const int)(16)
+#define CORNER_COEFF     (double)(0.002)
+#define MAX_CLUSTER      (const int)(17)
 
 
 // Variables Declaration
@@ -79,6 +79,8 @@ cv::Mat Cluster_bestLabel_Up;
 void undistort(void);
 void warpPerspectiveTransform(void);
 void showImg(void);
+int findOutlierCluster(const cv::Mat& centers);
+void sortPoints(cv::Mat& clusterCenters);
 
 int main(){
 	src_upper_upper = cv::imread("../../Image/LAB2/Corner.jpg");
@@ -89,22 +91,62 @@ int main(){
 	cv::cornerHarris(WarpOut,Edge,BLOCK_SIZE,APERTURE_SIZE,CORNER_COEFF);
 	Edge*=255;
 	std::cout<<"MaxRow ="<< Edge.rows<<"Maxcol ="<<Edge.cols<<std::endl;
-	
 	for(int row= 0; row<Edge.rows; row++)
 		for(int col = 0; col<Edge.cols; col++)
-			if(Edge.at<float>(row,col)>=.1f) Edge_points_Up.push_back(cv::Point2f(col,row));
+			if(Edge.at<float>(row,col)>=.1f)	Edge_points_Up.push_back(cv::Point2f(col,row));
+
 	cv::Mat data(Edge_points_Up.size(),2,CV_32F);
 	for(size_t idx = 0; idx<Edge_points_Up.size();idx++) {
-		data.at<float>(idx,0) = Edge_points_Up[idx].x;
-		data.at<float>(idx,1) = Edge_points_Up[idx].y;
+		data.at<float>(idx,U) = Edge_points_Up[idx].x;
+		data.at<float>(idx,V) = Edge_points_Up[idx].y;
 	}
+	//Initial Centroids
+	Cluster_Center_Up = cv::Mat(MAX_CLUSTER,2,CV_32F);
+	//200 800
+	Cluster_Center_Up.at<float>(0 ,U)  = 166;
+	Cluster_Center_Up.at<float>(1 ,U)  = 200;
+	Cluster_Center_Up.at<float>(2 ,U)  = 166;
+	Cluster_Center_Up.at<float>(3 ,U)  = 200;
+	Cluster_Center_Up.at<float>(4 ,U)  = 0  ;
+	Cluster_Center_Up.at<float>(5 ,U)  = 50 ;
+	Cluster_Center_Up.at<float>(6 ,U)  = 0  ;
+	Cluster_Center_Up.at<float>(7 ,U)  = 50 ;
+	Cluster_Center_Up.at<float>(8 ,U)  = 0  ;
+	Cluster_Center_Up.at<float>(9 ,U)  = 50 ;
+	Cluster_Center_Up.at<float>(10,U)  = 0  ;
+	Cluster_Center_Up.at<float>(11,U)  = 50 ;
+	Cluster_Center_Up.at<float>(12,U)  = 60 ;
+	Cluster_Center_Up.at<float>(13,U)  = 110;
+	Cluster_Center_Up.at<float>(14,U)  = 60 ;
+	Cluster_Center_Up.at<float>(15,U)  = 150;
+	Cluster_Center_Up.at<float>(0 ,V) =  10 ;
+	Cluster_Center_Up.at<float>(1 ,V) =  10 ;
+	Cluster_Center_Up.at<float>(2 ,V) =  100;
+	Cluster_Center_Up.at<float>(3 ,V) =  100;
+	Cluster_Center_Up.at<float>(4 ,V) =  300;
+	Cluster_Center_Up.at<float>(5 ,V) =  300;
+	Cluster_Center_Up.at<float>(6 ,V) =  400;
+	Cluster_Center_Up.at<float>(7 ,V) =  400;
+	Cluster_Center_Up.at<float>(8 ,V) =  600;
+	Cluster_Center_Up.at<float>(9 ,V) =  600;
+	Cluster_Center_Up.at<float>(10,V) =  660;
+	Cluster_Center_Up.at<float>(11,V) =  660;
+	Cluster_Center_Up.at<float>(12,V) =  720;
+	Cluster_Center_Up.at<float>(13,V) =  720;
+	Cluster_Center_Up.at<float>(14,V) =  790;
+	Cluster_Center_Up.at<float>(15,V) =  790;
 	cv::kmeans(data,MAX_CLUSTER, Cluster_bestLabel_Up,
 					cv::TermCriteria(cv::TermCriteria::EPS+cv::TermCriteria::COUNT,10,1),
 					10,cv::KMEANS_PP_CENTERS,Cluster_Center_Up);
-
-	cv::imshow("Cluster?",Cluster_Center_Up)         ;
+	sortPoints(Cluster_Center_Up);
+	for (int i = 0; i < Cluster_Center_Up.rows; i++) {
+		float x = Cluster_Center_Up.at<float>(i, 0);
+		float y = Cluster_Center_Up.at<float>(i, 1);
+		std::cout<< x << ", " << y << std::endl;
+	}
 	showImg();
 	cv::waitKey(0);
+
 	return 0;
 }
 
@@ -141,11 +183,75 @@ void warpPerspectiveTransform(void){
 	std::cout<<perspectiveMatrix<<std::endl;
 }
 
-
 void showImg(){
 	cv::namedWindow("Undistort",cv::WINDOW_GUI_NORMAL);
 	cv::imshow("Undistort", undistortedsrc_upper);
 	cv::namedWindow("Warped", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Warped",WarpOut);
 	cv::imshow("Corner", Edge);
+}
+
+int findOutlierCluster(const cv::Mat& centers) {
+	int numClusters = centers.rows;
+	double maxDist = 0;
+	int outlierIndex = -1;
+
+	for (int i = 0; i < numClusters; i++) {
+		double avgDist = 0;
+		for (int j = 0; j < numClusters; j++) {
+			if (i != j) {
+				cv::Point2f pt1 = centers.at<cv::Point2f>(i);
+				cv::Point2f pt2 = centers.at<cv::Point2f>(j);
+				double dist = cv::norm(pt1 - pt2);
+				avgDist += dist;
+			}
+		}
+		avgDist /= (numClusters - 1);
+		if (avgDist > maxDist) {
+			maxDist = avgDist;
+			outlierIndex = i;
+		}
+	}
+	return outlierIndex;
+}
+
+/*void createRectangles(const cv::Mat& centers, int outlierIndex) {
+	std::vector<cv::Point2f> rectanglePoints;
+
+	// Collect points excluding the outlier
+	for (int i = 0; i < centers.rows; i++) {
+		if (i != outlierIndex) {
+			rectanglePoints.push_back(centers.at<cv::Point2f>(i));
+		}
+	}
+	// Assuming rectanglePoints are ordered properly and grouped by rectangles
+	// Typically, you would need to sort or match these points into groups of four
+	// that form rectangles, depending on how your initial clustering was done.
+	for (size_t i = 0; i < rectanglePoints.size(); i += 4) {
+		// Draw or compute the rectangle using the points
+		// For simplicity, assume these are top-left, top-right, bottom-right, bottom-left
+		cv::rectangle(image, rectanglePoints[i], rectanglePoints[i + 2], cv::Scalar(0, 255, 0), 2);
+	}
+}*/
+
+void sortPoints(cv::Mat& clusterCenters) {
+	std::vector<cv::Point2f> points;
+
+	// Extract points from the Mat
+	for (int i = 0; i < clusterCenters.rows; i++) {
+		float x = clusterCenters.at<float>(i, 0);
+		float y = clusterCenters.at<float>(i, 1);
+		points.push_back(cv::Point2f(x, y));
+	}
+
+	// Sort points by x-coordinate
+	std::sort(points.begin(), points.end(), [](const cv::Point2f& a, const cv::Point2f& b) {
+	    return a.y < b.y || (a.y == b.y && a.x < b.x);  // Secondary sort by y if x is the same
+	});
+
+	// Optionally, put the sorted points back into the matrix if needed
+	for (int i = 0; i < clusterCenters.rows; i++) {
+		clusterCenters.at<float>(i, 0) = points[i].x;
+		clusterCenters.at<float>(i, 1) = points[i].y;
+	}
 }
