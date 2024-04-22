@@ -33,7 +33,6 @@ int main(int argc, char** argv)
 	for (size_t i = 0; i < circles.size(); i++){
 		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
 		int radius = cvRound(circles[i][2]);
-
 		/* draw the circle center */
 		circle(src, center, 3, Scalar(0, 255, 0), -1, 8, 0);
 		/* draw the circle outline */

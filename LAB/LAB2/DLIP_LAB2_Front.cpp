@@ -51,12 +51,12 @@ const double p1= 0.0018974244228679193 ;
 const double p2= -0.002899002140939538 ;
 cv::Mat cameraMatrix, distCoeffs;
 
-cv::Mat src				  ;
+cv::Mat src_Front		  ;
 cv::Mat undistortedSrc	  ;
-cv::Mat Edge;
+cv::Mat Corner_Front;
 // This is to warpPerspective
-std::vector<cv::Point2f> srcPoints;
-std::vector<cv::Point2f> dstPoints;
+std::vector<cv::Point2f> srcPoints_Front;
+std::vector<cv::Point2f> dst_Front;
 cv::Mat perspectiveMatrix;
 cv::Mat WarpOut;
 cv::Mat thresh;
@@ -66,23 +66,23 @@ std::vector<std::vector<cv::Point>> contours;
 std::vector<cv::Vec4i> hierarchy;
 
 void undistort(void);
-void warpPerspectiveTransform(void);
+void warpPerspectiveTransform_Front(void);
 void showImg(void);
 
 int main(){
-	src = cv::imread("../../Image/LAB2/Front.jpg");
+	src_Front = cv::imread("../../Image/LAB2/Front.jpg");
 	undistort();
-	warpPerspectiveTransform();
+	warpPerspectiveTransform_Front();
 	// Filter
 	for(int idx = 0; idx<10; idx++) cv::medianBlur(WarpOut,WarpOut,3);
-	cv::cornerHarris(WarpOut,Edge,blockSize,apertureSize,0.001);
-	// cv::convertScaleAbs(Edge,Edge);
-	// cv::equalizeHist(Edge,Edge);
-	Edge*=255;
-	std::cout<<"MaxRow ="<< Edge.rows<<"Maxcol ="<<Edge.cols<<std::endl;
-	for(int row= 0; row<Edge.rows; row++)
-		for(int col = 0; col<Edge.cols; col++)
-			if(Edge.at<float>(row,col)>=.1f) std::cout<<row <<" "<< col<<std::endl;
+	cv::cornerHarris(WarpOut,Corner_Front,blockSize,apertureSize,0.001);
+	// cv::convertScaleAbs(Corner_Front,Corner_Front);
+	// cv::equalizeHist(Corner_Front,Corner_Front);
+	Corner_Front*=255;
+	std::cout<<"MaxRow ="<< Corner_Front.rows<<"Maxcol ="<<Corner_Front.cols<<std::endl;
+	for(int row= 0; row<Corner_Front.rows; row++)
+		for(int col = 0; col<Corner_Front.cols; col++)
+			if(Corner_Front.at<float>(row,col)>=.05f) std::cout<<row <<" "<< col<<std::endl;
 
 	showImg();
 	cv::waitKey(0);
@@ -101,32 +101,29 @@ void undistort(void){
 	distCoeffs.at<double>(1, 0)   = k2;
 	distCoeffs.at<double>(2, 0)   = p1;
 	distCoeffs.at<double>(3, 0)   = p2;
-	cv::undistort(src, undistortedSrc, cameraMatrix, distCoeffs);
+	cv::undistort(src_Front, undistortedSrc, cameraMatrix, distCoeffs);
 	cv::cvtColor(undistortedSrc,undistortedSrc , cv::COLOR_BGR2GRAY);
 }
 
-//Corner
-void warpPerspectiveTransform(void){
-	srcPoints.push_back(cv::Point2f(665, 967));    //967, 979
-	srcPoints.push_back(cv::Point2f(3455, 895));    //3087, 977
-	srcPoints.push_back(cv::Point2f(721, 1651));    //967, 1523)
-	srcPoints.push_back(cv::Point2f(3422, 1596));    //3076, 1523
+//Warp Transform
+void warpPerspectiveTransform_Front(void){
+	srcPoints_Front.push_back(cv::Point2f(665, 967));    //967, 979
+	srcPoints_Front.push_back(cv::Point2f(3455, 895));    //3087, 977
+	srcPoints_Front.push_back(cv::Point2f(721, 1651));    //967, 1523)
+	srcPoints_Front.push_back(cv::Point2f(3422, 1596));    //3076, 1523
 
-	dstPoints.push_back(cv::Point2f(0, 0      ));    // top-left
-	dstPoints.push_back(cv::Point2f(800, 0    ));    // top-right
-	dstPoints.push_back(cv::Point2f(0, 200    ));    // bottom-left
-	dstPoints.push_back(cv::Point2f(800, 200  ));    // bottom-right
-	perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
+	dst_Front.push_back(cv::Point2f(0, 0      ));    // top-left
+	dst_Front.push_back(cv::Point2f(800, 0    ));    // top-right
+	dst_Front.push_back(cv::Point2f(0, 200    ));    // bottom-left
+	dst_Front.push_back(cv::Point2f(800, 200  ));    // bottom-right
+	perspectiveMatrix = cv::getPerspectiveTransform(srcPoints_Front, dst_Front);
 	cv::warpPerspective(undistortedSrc, WarpOut, perspectiveMatrix, cv::Size(800, 200));
-
-	std::cout<<perspectiveMatrix<<std::endl;
 }
-
 
 void showImg(){
 	cv::namedWindow("Undistort",cv::WINDOW_GUI_NORMAL);
 	cv::imshow("Undistort", undistortedSrc);
 	cv::namedWindow("Warped", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Warped",WarpOut);
-	cv::imshow("Corner", Edge);
+	cv::imshow("Corner", Corner_Front);
 }
