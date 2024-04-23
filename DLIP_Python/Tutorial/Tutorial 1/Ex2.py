@@ -12,7 +12,8 @@ import numpy as np
 def main():
     src = cv.imread('color_ball.jpg')
     dst = cv.cvtColor(src, cv.COLOR_BGR2HSV)
-    dst = cv.inRange(dst, (45, 20, 150), (50, 100, 255))
+    dst = cv.inRange(dst, (200, 90, 120), (215, 95, 140))
+    
     cv.imshow('dst', dst)
     cv.waitKey(0)
 
