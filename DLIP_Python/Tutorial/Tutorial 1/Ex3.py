@@ -45,7 +45,10 @@ def main():
 
     cv.imshow("Blurred", dst_thr)
     cv.imshow("Original", src)
-    print("500 won = ",fivehundred,"100 won = ",hundred,"50 won = ",fifty,"10 won = ",ten)
+    print(" 500 won = ",fivehundred,"\r\n",
+          "100 won = ",hundred,"\r\n",
+          "50 won = ",fifty,"\r\n",
+          "10 won = ",ten)
     cv.waitKey(0)
 
 if __name__ =='__main__':

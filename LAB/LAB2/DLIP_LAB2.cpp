@@ -167,6 +167,7 @@ void showImg(){
 	cv::imshow("Undistort", undistortedsrc_upper);
 	cv::namedWindow("Warped", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Warped",WarpOut);
+	cv::imshow("Warped Front",WarpOut_F);
 	cv::imshow("Corner", Corner_Upper);
 }
 
