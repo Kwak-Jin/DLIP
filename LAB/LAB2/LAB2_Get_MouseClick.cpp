@@ -28,15 +28,12 @@ struct PointData {
 	std::vector<cv::Point> points;
 };
 
-PointData* onMouse(int event, int x, int y, int flags, void* userdata) {
+void onMouse(int event, int x, int y, int flags, void* userdata) {
 	PointData* pd = (PointData*)userdata;
 	if (event == cv::EVENT_LBUTTONDOWN) {
 		pd->points.push_back(cv::Point(x, y));
 		std::cout << "Clicked at: " << x << ", " << y << std::endl;
 	}
-	else if(event == cv::EVENT_RBUTTONDOWN) {
-	}
-	return pd;
 }
 
 int main(){

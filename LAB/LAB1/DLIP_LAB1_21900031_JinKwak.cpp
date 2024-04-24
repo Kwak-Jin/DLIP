@@ -4,8 +4,7 @@
 * @Modified 2024/04/01
 */
 
-#include "DLIP.hpp"
-#include <sstream>
+#include "DLIP_21900031.hpp"
 
 #define MAX_BIN_VAL         (int)(255)
 #define THRESH_VAL          (double)(180)
@@ -31,6 +30,7 @@ cv::Mat dst_color;
 std:: vector<std::vector<cv::Point>>  contours;
 std::vector<cv::Vec4i> hierarchy;
 cv::Scalar color;
+//Segmentation Variables
 int Component_cnt[5] = {0,};
 int False_cnt = 0;
 enum Components{
@@ -108,9 +108,12 @@ void func_Contour(void){
 
 	cv::drawContours(contour,contours,
 					 -1,cv::Scalar (0),cv::FILLED);
-
-	int contourSize = contours.size();          //Number of Contours
-	double arc_length =  0;                     //Length of the contour box
+	//Number of Contours
+	std::cout<<"Contours Size "<<contours.size()<<std::endl;
+	int contourSize = contours.size();
+	//Length of the contour box
+	double arc_length =  0;
+	// Number of inner contours and their contour indices
 	cv::Rect FalseDetect[contourSize];
 	/* Make contour rectangles */
 	for(int idx = 0; idx<contourSize; idx++)    FalseDetect[idx] = cv::boundingRect(contours[idx]);
@@ -122,7 +125,6 @@ void func_Contour(void){
 			else if((FalseDetect[rectA]&FalseDetect[rectB])== FalseDetect[rectB]) ignore_contour[rectB] = true;
 		}
 	}
-
 
 	/* Print out the number of contours*/
 	std::cout<<"The number of detected Industrial components: "<<contourSize<<std::endl;

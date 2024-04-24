@@ -84,6 +84,20 @@ inline float GetVolume(float* Vol){
 	std::cout<<"Volume = "<<Size<<"mm^3"<<std::endl;
 	return Size;
 };
+
+// Structure to store clicked points
+struct PointData {
+	std::vector<cv::Point> points;
+};
+
+void onMouse(int event, int x, int y, int flags, void* userdata) {
+	PointData* pd = (PointData*)userdata;
+	if (event == cv::EVENT_LBUTTONDOWN) {
+		pd->points.push_back(cv::Point(x, y));
+		std::cout << "Clicked at: " << x << ", " << y << std::endl;
+	}
+}
+
 void undistort(void);
 void warpPerspectiveTransform(void);
 void showImg(void);
@@ -101,7 +115,14 @@ int main(){
 	src_upper_upper = cv::imread("../../Image/LAB2/Corner.jpg");
 	src_front_front = cv::imread("../../Image/LAB2/Front.jpg");
 	undistort();
+	PointData pointData;
+	cv::namedWindow("My Window",cv::WINDOW_GUI_NORMAL);
+	cv::imshow("My Window", WarpOut);
+	cv::setMouseCallback("My Window", onMouse, &pointData);
+	cv::waitKey(0);
+
 	warpPerspectiveTransform();
+
  	// Filter
 	for(int idx = 0; idx<10; idx++) cv::medianBlur(WarpOut,WarpOut,3);
 	cv::cornerHarris(WarpOut,Corner_Upper,BLOCK_SIZE,APERTURE_SIZE,CORNER_COEFF);
@@ -134,6 +155,7 @@ void undistort(void){
 	cv::undistort(src_front_front,undistortedsrc_front, cameraMatrix,distCoeffs);
 	cv::cvtColor(undistortedsrc_front,undistortedsrc_front, cv::COLOR_BGR2GRAY);
 }
+
 //Corner
 void warpPerspectiveTransform(void){
 	src_Upper.push_back(cv::Point2f(1198, 1043));    //967, 979

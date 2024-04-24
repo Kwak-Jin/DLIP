@@ -1,5 +1,5 @@
-SET(SOURCE DLIP.cpp tinyxml2.cpp)
+SET(SOURCE DLIP_21900031.cpp tinyxml2.cpp)
 
-SET(HEADER DLIP.hpp tinyxml2.h cameraParam.h)
+SET(HEADER DLIP_21900031.hpp tinyxml2.h cameraParam.h)
 
 add_library(Include STATIC ${SOURCE} ${HEADER})
