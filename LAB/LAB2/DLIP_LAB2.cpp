@@ -15,25 +15,9 @@
 #define MAX_CLUSTER      (const int)(17)
 #define NEXT_RECT        (int)(4)
 
-enum CAMERA_FRAME{
-	CAM_X   = 0,
-	CAM_Y   = 1,
-	CAM_Z   = 2,
-	N_CAM   = 3,
-};
-enum PIXEL_FRAME{
-	U       = 0,
-	V       = 1,
-	N_PIX   = 2
-};
-
-enum CORNER{
-	TLEFT    = 0,
-	TRIGHT   = 1,
-	BLEFT    = 2,
-	BRIGHT   = 3,
-	N_CORNER = 4
-};
+enum CAMERA_FRAME{ CAM_X   = 0, CAM_Y   = 1, CAM_Z   = 2, N_CAM   = 3};
+enum PIXEL_FRAME{  U       = 0, V       = 1,	N_PIX   = 2};
+enum CORNER{ TLEFT = 0,	TRIGHT = 1, BLEFT = 2, BRIGHT = 3,	N_CORNER = 4};
 
 // Camera Calibration constants
 const double fx = 3040.3677120589309   ;
@@ -65,7 +49,6 @@ std::vector<cv::Point2f> dstPoints_Front  ;
 cv::Mat perspectiveMatrix_F			  ;
 cv::Mat WarpOut_F				       ;
 
-
 // Cluster Variables
 std::vector<cv::Point2f> Corner_points_Front;
 std::vector<cv::Point2f> Corner_points_Up;
@@ -81,21 +64,17 @@ inline float GetVolume(float* Vol){
 		std::cout<<"Volume Parameter("<<idx<<") = "<<Vol[idx]<<"[mm]"<<std::endl;
 		Size*= Vol[idx];
 	}
-	std::cout<<"Volume = "<<Size<<"mm^3"<<std::endl;
 	return Size;
 };
 
 // Structure to store clicked points
 struct PointData {
-	std::vector<cv::Point> points;
+	std::vector<cv::Point2f> points;
 };
 
 void onMouse(int event, int x, int y, int flags, void* userdata) {
 	PointData* pd = (PointData*)userdata;
-	if (event == cv::EVENT_LBUTTONDOWN) {
-		pd->points.push_back(cv::Point(x, y));
-		std::cout << "Clicked at: " << x << ", " << y << std::endl;
-	}
+	if (event == cv::EVENT_LBUTTONDOWN) pd->points.push_back(cv::Point(x, y));
 }
 
 void undistort(void);
@@ -106,33 +85,39 @@ void sortPointsX(cv::Mat& clusterCenters);
 void sortPointsY(cv::Mat& clusterCenters);
 void removeRow(cv::Mat& original, int rowIndex);
 void sortRectangleCorners(cv::Mat& points);
-void assignCentroids_Up(void);
 void printRows(cv::Mat& mat);
-void getDiff_Up(void);
+void getPix2mm(void);
 void getLength(void);
+PointData pointData_Up;
+PointData pointData_Front;
 
 int main(){
 	src_upper_upper = cv::imread("../../Image/LAB2/Corner.jpg");
 	src_front_front = cv::imread("../../Image/LAB2/Front.jpg");
 	undistort();
-	PointData pointData;
-	cv::namedWindow("My Window",cv::WINDOW_GUI_NORMAL);
-	cv::imshow("My Window", WarpOut);
-	cv::setMouseCallback("My Window", onMouse, &pointData);
-	cv::waitKey(0);
-
+	cv::namedWindow	("Click 4 points of Upper Image",cv::WINDOW_GUI_NORMAL);
+	cv::imshow		("Click 4 points of Upper Image", undistortedsrc_upper);
+	cv::setMouseCallback("Click 4 points of Upper Image", onMouse, &pointData_Up);
+	cv::waitKey		(0);
+	cv::namedWindow	("Click 4 points of Front Image",cv::WINDOW_GUI_NORMAL);
+	cv::imshow		("Click 4 points of Front Image", undistortedsrc_front);
+	cv::setMouseCallback("Click 4 points of Front Image", onMouse, &pointData_Front);
+	cv::waitKey		(0);
 	warpPerspectiveTransform();
-
+	cv::imshow("Warped Image",WarpOut);
+	cv::waitKey(0);
  	// Filter
-	for(int idx = 0; idx<10; idx++) cv::medianBlur(WarpOut,WarpOut,3);
+	for(int idx = 0; idx<20; idx++) cv::medianBlur(WarpOut,WarpOut,3);
 	cv::cornerHarris(WarpOut,Corner_Upper,BLOCK_SIZE,APERTURE_SIZE,CORNER_COEFF);
 	Corner_Upper*=255;
 	//Clustering algorithm
 	cluster();
 
-	getDiff_Up();
+	getPix2mm();
 	Volume[CAM_Z] = 50.f;
 	float Vol = GetVolume(Volume);
+	std::cout<<"Volume = "<<Vol<<" mm^3"<<std::endl;
+
 	showImg();
 	cv::waitKey(0);
 	return 0;
@@ -158,24 +143,17 @@ void undistort(void){
 
 //Corner
 void warpPerspectiveTransform(void){
-	src_Upper.push_back(cv::Point2f(1198, 1043));    //967, 979
-	src_Upper.push_back(cv::Point2f(2112, 1039));    //3087, 977
-	src_Upper.push_back(cv::Point2f(1189, 2874));    //967, 1523)
-	src_Upper.push_back(cv::Point2f(2100, 2924));    //3076, 1523
-
+	for (const auto& point : pointData_Up.points) src_Upper.push_back(point); //1198, 1043 //2112, 1039 //1189, 2874  //2100, 2924
+	//assign the Size of  output matrix
 	dstPoints_Upper.push_back(cv::Point2f(0, 0      ));          // top-left
 	dstPoints_Upper.push_back(cv::Point2f(200, 0    ));          // top-right
 	dstPoints_Upper.push_back(cv::Point2f(0, 800    ));          // bottom-left
 	dstPoints_Upper.push_back(cv::Point2f(200, 800  ));          // bottom-right
 	perspectiveMatrix = cv::getPerspectiveTransform(src_Upper, dstPoints_Upper);
 	cv::warpPerspective(undistortedsrc_upper, WarpOut, perspectiveMatrix, cv::Size(200, 800));
-	std::cout<<perspectiveMatrix<<std::endl;
-	//Front
-	src_Front.push_back(cv::Point2f(665, 967));    //967, 979
-	src_Front.push_back(cv::Point2f(3455, 895));    //3087, 977
-	src_Front.push_back(cv::Point2f(721, 1651));    //967, 1523)
-	src_Front.push_back(cv::Point2f(3422, 1596));    //3076, 1523
 
+	//Front
+	for (const auto& point : pointData_Front.points) src_Front.push_back(point); //665, 967  //3455, 895 //721, 1651 //3422, 1596
 	dstPoints_Front.push_back(cv::Point2f(0, 0      ));    // top-left
 	dstPoints_Front.push_back(cv::Point2f(800, 0    ));    // top-right
 	dstPoints_Front.push_back(cv::Point2f(0, 200    ));    // bottom-left
@@ -202,12 +180,10 @@ void sortPointsY(cv::Mat& clusterCenters) {
 		float y = clusterCenters.at<float>(i, 1);
 		points.push_back(cv::Point2f(x, y));
 	}
-
 	// Sort points by x-coordinate
 	std::sort(points.begin(), points.end(), [](const cv::Point2f& a, const cv::Point2f& b) {
 	    return a.y < b.y || (a.y == b.y && a.x < b.x);  // Secondary sort by y if x is the same
 	});
-
 	// Optionally, put the sorted points back into the matrix if needed
 	for (int i = 0; i < clusterCenters.rows; i++) {
 		clusterCenters.at<float>(i, 0) = points[i].x;
@@ -224,12 +200,10 @@ void sortPointsX(cv::Mat& clusterCenters) {
 		float y = clusterCenters.at<float>(i, 1);
 		points.push_back(cv::Point2f(x, y));
 	}
-
 	// Sort points by x-coordinate
 	std::sort(points.begin(), points.end(), [](const cv::Point2f& a, const cv::Point2f& b) {
 	    return a.x < b.x || (a.x == b.x && a.y < b.y);  // Secondary sort by y if x is the same
 	});
-
 	// Optionally, put the sorted points back into the matrix if needed
 	for (int i = 0; i < clusterCenters.rows; i++) {
 		clusterCenters.at<float>(i, 0) = points[i].x;
@@ -247,11 +221,7 @@ void removeRow(cv::Mat& original, int rowIndex) {
 		cv::Mat reduced(original.rows - 1, original.cols, original.type());
 
 		// Copy the data from the original matrix to the new one, skipping the specified row
-		for (int i = 0, j = 0; i < original.rows; i++) {
-			if (i != rowIndex) {
-				original.row(i).copyTo(reduced.row(j++));
-			}
-		}
+		for (int i = 0, j = 0; i < original.rows; i++)	if (i != rowIndex)	original.row(i).copyTo(reduced.row(j++));
 		// Replace the original matrix with the new one
 		original = reduced;
 	}
@@ -278,48 +248,10 @@ void sortRectangleCorners(cv::Mat& points) {
 		std::sort(bottomCorners.begin(), bottomCorners.end(), [](const cv::Point2f& a, const cv::Point2f& b) {
 		    return a.x < b.x;
 		});
-
 		// Assign sorted bottom corners back to the Mat
 		points.at<cv::Point2f>(i + 2, 0) = bottomCorners[0];
 		points.at<cv::Point2f>(i + 3, 0) = bottomCorners[1];
 	}
-}
-
-void assignCentroids_Up(void){
-	//Initial Centroids
-	Cluster_Center_Up = cv::Mat(MAX_CLUSTER,2,CV_32F);
-	Cluster_Center_Up.at<float>(0 ,U)  = 166;
-	Cluster_Center_Up.at<float>(1 ,U)  = 200;
-	Cluster_Center_Up.at<float>(2 ,U)  = 166;
-	Cluster_Center_Up.at<float>(3 ,U)  = 200;
-	Cluster_Center_Up.at<float>(4 ,U)  = 0  ;
-	Cluster_Center_Up.at<float>(5 ,U)  = 50 ;
-	Cluster_Center_Up.at<float>(6 ,U)  = 0  ;
-	Cluster_Center_Up.at<float>(7 ,U)  = 50 ;
-	Cluster_Center_Up.at<float>(8 ,U)  = 0  ;
-	Cluster_Center_Up.at<float>(9 ,U)  = 50 ;
-	Cluster_Center_Up.at<float>(10,U)  = 0  ;
-	Cluster_Center_Up.at<float>(11,U)  = 50 ;
-	Cluster_Center_Up.at<float>(12,U)  = 60 ;
-	Cluster_Center_Up.at<float>(13,U)  = 110;
-	Cluster_Center_Up.at<float>(14,U)  = 60 ;
-	Cluster_Center_Up.at<float>(15,U)  = 150;
-	Cluster_Center_Up.at<float>(0 ,V) =  0 ;
-	Cluster_Center_Up.at<float>(1 ,V) =  0 ;
-	Cluster_Center_Up.at<float>(2 ,V) =  50*2;
-	Cluster_Center_Up.at<float>(3 ,V) =  50*2;
-	Cluster_Center_Up.at<float>(4 ,V) =  150*2;
-	Cluster_Center_Up.at<float>(5 ,V) =  150*2;
-	Cluster_Center_Up.at<float>(6 ,V) =  200*2;
-	Cluster_Center_Up.at<float>(7 ,V) =  200*2;
-	Cluster_Center_Up.at<float>(8 ,V) =  300*2;
-	Cluster_Center_Up.at<float>(9 ,V) =  300*2;
-	Cluster_Center_Up.at<float>(10,V) =  330*2;
-	Cluster_Center_Up.at<float>(11,V) =  330*2;
-	Cluster_Center_Up.at<float>(12,V) =  360*2;
-	Cluster_Center_Up.at<float>(13,V) =  360*2;
-	Cluster_Center_Up.at<float>(14,V) =  395*2;
-	Cluster_Center_Up.at<float>(15,V) =  395*2;
 }
 
 //Print Cluster Points
@@ -329,7 +261,7 @@ void printRows(cv::Mat& mat){
 	}
 }
 
-void getDiff_Up(void){
+void getPix2mm(void){
 	float bigTRx = Cluster_Center_Up.at<float>(TRIGHT,0);
 	float bigTRy = Cluster_Center_Up.at<float>(TRIGHT,1);
 	float bigTLx = Cluster_Center_Up.at<float>(TLEFT,0);
@@ -343,6 +275,7 @@ void getDiff_Up(void){
 	float smallBRx = Cluster_Center_Up.at<float>(NEXT_RECT*3+BRIGHT,0);
 	float smallBRy = Cluster_Center_Up.at<float>(NEXT_RECT*3+BRIGHT,1);
 
+	//Check If the edge is correctly selected
 	cv::circle(WarpOut,cv::Point2f(bigTRx,bigTRy),3, 255);
 	cv::circle(WarpOut,cv::Point2f(bigTLx,bigTLy),3, 255);
 	cv::circle(WarpOut,cv::Point2f(bigBRx,bigBRy),3, 255);
@@ -369,8 +302,7 @@ void cluster(){
 	for(size_t idx = 0; idx<Corner_points_Up.size();idx++) {
 		data.at<float>(idx,U) = Corner_points_Up[idx].x;
 		data.at<float>(idx,V) = Corner_points_Up[idx].y;
-	}
-	assignCentroids_Up();
+	 }
 	cv::kmeans(data,MAX_CLUSTER, Cluster_bestLabel_Up,
 			  cv::TermCriteria(cv::TermCriteria::EPS+cv::TermCriteria::COUNT,10,1),
 			  10,cv::KMEANS_PP_CENTERS,Cluster_Center_Up);
