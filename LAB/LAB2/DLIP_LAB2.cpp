@@ -72,9 +72,31 @@ struct PointData {
 	std::vector<cv::Point2f> points;
 };
 
+std::vector<cv::Point> points;
+int draggingPoint = -1;  // Index of the dragging point, -1 if no point is being dragged
+const int radius = 5;    // Radius for drawing points
+const int thickness = -1; // Fill the circle
 void onMouse(int event, int x, int y, int flags, void* userdata) {
 	PointData* pd = (PointData*)userdata;
 	if (event == cv::EVENT_LBUTTONDOWN) pd->points.push_back(cv::Point(x, y));
+}
+
+void CallBackFunc(int event, int x, int y, int flags, void* userdata) {
+	if (event == cv::EVENT_LBUTTONDOWN) {
+		// Check if a point is near the click, and set it as dragging
+		for (size_t i = 0; i < points.size(); i++) {
+			if (sqrt(pow(points[i].x - x, 2) + pow(points[i].y - y, 2)) < radius) {
+				draggingPoint = i; // Set the point as being dragged
+				break;
+			}
+		}
+	} else if (event == cv::EVENT_MOUSEMOVE && draggingPoint != -1) {
+		// If dragging, update the point coordinates
+		points[draggingPoint] = cv::Point(x, y);
+	} else if (event == cv::EVENT_LBUTTONUP) {
+		// Stop dragging
+		draggingPoint = -1;
+	}
 }
 
 void undistort(void);
@@ -95,21 +117,29 @@ int main(){
 	src_upper_upper = cv::imread("../../Image/LAB2/Corner.jpg");
 	src_front_front = cv::imread("../../Image/LAB2/Front.jpg");
 	undistort();
+	std::cout<<"Click 4 points of the edge"<<std::endl;
 	cv::namedWindow	("Click 4 points of Upper Image",cv::WINDOW_GUI_NORMAL);
 	cv::imshow		("Click 4 points of Upper Image", undistortedsrc_upper);
 	cv::setMouseCallback("Click 4 points of Upper Image", onMouse, &pointData_Up);
 	cv::waitKey		(0);
+	std::cout<<"Click 4 points of the edge"<<std::endl;
 	cv::namedWindow	("Click 4 points of Front Image",cv::WINDOW_GUI_NORMAL);
 	cv::imshow		("Click 4 points of Front Image", undistortedsrc_front);
 	cv::setMouseCallback("Click 4 points of Front Image", onMouse, &pointData_Front);
 	cv::waitKey		(0);
 	warpPerspectiveTransform();
-	cv::imshow("Warped Image",WarpOut);
+	cv::imshow("Warped Upper Image",WarpOut);
+	cv::imshow("Warped Front Image",WarpOut_F);
 	cv::waitKey(0);
  	// Filter
-	for(int idx = 0; idx<20; idx++) cv::medianBlur(WarpOut,WarpOut,3);
+	for(int idx = 0; idx<30; idx++) {
+		cv::medianBlur(WarpOut,WarpOut,3);
+		cv::medianBlur(WarpOut,WarpOut_F,3);
+	}
 	cv::cornerHarris(WarpOut,Corner_Upper,BLOCK_SIZE,APERTURE_SIZE,CORNER_COEFF);
+	cv::cornerHarris(WarpOut_F,Corner_front,BLOCK_SIZE,APERTURE_SIZE,CORNER_COEFF);
 	Corner_Upper*=255;
+	Corner_front*=255;
 	//Clustering algorithm
 	cluster();
 
@@ -297,17 +327,34 @@ void cluster(){
 	for(int row= 0; row<Corner_Upper.rows; row++)
 		for(int col = 0; col<Corner_Upper.cols; col++)
 			if(Corner_Upper.at<float>(row,col)>=.1f)	Corner_points_Up.push_back(cv::Point2f(col,row));
-
-	cv::Mat data(Corner_points_Up.size(),2,CV_32F);
+	for(int row= 0; row<Corner_front.rows; row++)
+		for(int col = 0; col<Corner_front.cols; col++)
+			if(Corner_front.at<float>(row,col)>=.1f)	Corner_points_Front.push_back(cv::Point2f(col,row));
+	cv::Mat data_Up(Corner_points_Up.size(),2,CV_32F);
+	cv::Mat data_Front(Corner_points_Front.size(),2,CV_32F);
 	for(size_t idx = 0; idx<Corner_points_Up.size();idx++) {
-		data.at<float>(idx,U) = Corner_points_Up[idx].x;
-		data.at<float>(idx,V) = Corner_points_Up[idx].y;
+		data_Up.at<float>(idx,U) = Corner_points_Up[idx].x;
+		data_Up.at<float>(idx,V) = Corner_points_Up[idx].y;
 	 }
-	cv::kmeans(data,MAX_CLUSTER, Cluster_bestLabel_Up,
+	for(size_t idx = 0; idx<Corner_points_Front.size();idx++) {
+		data_Front.at<float>(idx,U) = Corner_points_Front[idx].x;
+		data_Front.at<float>(idx,V) = Corner_points_Front[idx].y;
+	}
+	cv::kmeans(data_Up,MAX_CLUSTER, Cluster_bestLabel_Up,
 			  cv::TermCriteria(cv::TermCriteria::EPS+cv::TermCriteria::COUNT,10,1),
 			  10,cv::KMEANS_PP_CENTERS,Cluster_Center_Up);
 	sortPointsY(Cluster_Center_Up);
 
-	removeRow(Cluster_Center_Up,6);
+	cv::kmeans(data_Front,MAX_CLUSTER, Cluster_bestLabel_Front,
+			  cv::TermCriteria(cv::TermCriteria::EPS+cv::TermCriteria::COUNT,10,1),
+			  10,cv::KMEANS_PP_CENTERS,Cluster_Center_Front);
+	removeRow(Cluster_Center_Up,16);
+	sortPointsX(Cluster_Center_Front);
 	sortRectangleCorners(Cluster_Center_Up);
+	std::cout<<"Clustered Points"<<std::endl;
+	for (int i = 0; i < Cluster_Center_Front.rows; i++) {
+		float x = Cluster_Center_Front.at<float>(i, 0);
+		float y = Cluster_Center_Front.at<float>(i, 1);
+		std::cout<< x << ", " << y << std::endl;
+	}
 }

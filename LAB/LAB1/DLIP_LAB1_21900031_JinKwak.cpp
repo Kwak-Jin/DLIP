@@ -109,12 +109,12 @@ void func_Contour(void){
 	cv::drawContours(contour,contours,
 					 -1,cv::Scalar (0),cv::FILLED);
 	//Number of Contours
-	std::cout<<"Contours Size "<<contours.size()<<std::endl;
 	int contourSize = contours.size();
 	//Length of the contour box
 	double arc_length =  0;
+
 	// Number of inner contours and their contour indices
-	cv::Rect FalseDetect[contourSize];
+	std::vector<cv::Rect>  FalseDetect(contourSize);
 	/* Make contour rectangles */
 	for(int idx = 0; idx<contourSize; idx++)    FalseDetect[idx] = cv::boundingRect(contours[idx]);
 

@@ -18,3 +18,6 @@ img1: image
 def showImage(filename:str, imag1: np.ndarray) -> None:
     cv.namedWindow(filename, cv.WINDOW_GUI_NORMAL)
     cv.imshow(filename, imag1)
+
+# def curveFit(xArr: np.ndarray, yArr: np.ndarray , polynomial:int) -> np.ndarray:
+#     coeff
