@@ -1,43 +1,23 @@
-/**
-* @about LAB2 Dimension measurement with 2D Camera
-* @author Jin Kwak / 21900031, Ignacio / 22320052
-* @created 2024.04.09
-* @modified 2024.04.12
+/** @about LAB2 Dimension measurement with 2D Camera
+*   @author Jin Kwak / 21900031, Ignacio / 22320052
+*   @created 2024.04.09
+*   @modified 2024.04.23
 */
+
 #include <iostream>
 #include <opencv.hpp>
 #include <string>
-//#include "cameraParam.h"
+#include <vector>
+#include <algorithm>
+#define BLOCK_SIZE		(int)(2)
+#define APERTURE_SIZE	(int)(3)
 
-// Variables Declaration
-enum PARAM{
-	LENGTH  = 1,
-	HEIGHT  = 2,
-	WIDTH   = 3,
-	N_PARAM = 3,
-};
-
-enum CAMERA_FRAME{
-	X       = 0,
-	Y       = 1,
-	Z       = 2,
-	N_CAM   = 3,
-};
-
-enum PIXEL_FRAME{
-	U       = 0,
-	V       = 1,
-	N_PIX   = 2
-};
-
-inline double GetVolume(double* X){
-	double Area = 1;
-	for(int idx = 0; idx<N_PARAM; idx++) Area*= X[idx];
-	return Area;
-}
-
-double BigRectSize[N_PARAM]   = {0,};
-double SmallRectSize[N_PARAM] = {0,};
+#define NEXT_RECT        (int)(4)
+#define N_IDX            (int)(50)
+#define K_SIZE           (int)(3)
+enum CAMERA_FRAME{ CAM_X   = 0, CAM_Y   = 1, CAM_Z   = 2, N_CAM   = 3};
+enum PIXEL_FRAME{  U       = 0, V       = 1,	N_PIX   = 2};
+enum CORNER{ TLEFT = 0,	TRIGHT = 1, BLEFT = 2, BRIGHT = 3,	N_CORNER = 4};
 
 // Camera Calibration constants
 const double fx = 3040.3677120589309   ;
@@ -50,43 +30,86 @@ const double p1= 0.0018974244228679193 ;
 const double p2= -0.002899002140939538 ;
 cv::Mat cameraMatrix, distCoeffs;
 
-cv::Mat src				  ;
-cv::Mat undistortedSrc	  ;
-cv::Mat Edge;
-// This is to warpPerspective
-std::vector<cv::Point2f> srcPoints;
-std::vector<cv::Point2f> dstPoints;
-cv::Mat perspectiveMatrix;
-cv::Mat WarpOut;
-cv::Mat thresh;
+cv::Mat src_upper_upper				  ;
+cv::Mat undistortedsrc_upper			  ;
+cv::Mat Corner_Upper				  ;
 
-// Contour Variables
-std::vector<std::vector<cv::Point>> contours;
-std::vector<cv::Vec4i> hierarchy;
+cv::Mat src_front_front				  ;
+cv::Mat undistortedsrc_front			  ;
+cv::Mat Corner_front				  ;
+
+// This is to warpPerspective
+std::vector<cv::Point2f> src_Upper	       ;
+std::vector<cv::Point2f> dstPoints_Upper  ;
+cv::Mat perspectiveMatrix			  ;
+cv::Mat WarpOut				       ;
+
+std::vector<cv::Point2f> src_Front	       ;
+std::vector<cv::Point2f> dstPoints_Front  ;
+cv::Mat perspectiveMatrix_F			  ;
+cv::Mat WarpOut_F				       ;
+
+float PIXEL2MM_X;
+float PIXEL2MM_Y;
+float Volume[N_CAM] = {0.f,};
+inline float GetVolume(float* Vol){
+	float Size = 1;
+	for(int idx= 0; idx<N_CAM; idx++) {
+		std::cout<<"Volume Parameter("<<idx<<") = "<<Vol[idx]<<"[mm]"<<std::endl;
+		Size*= Vol[idx];
+	}
+	return Size;
+};
+
+// Structure to store clicked points
+struct PointData {
+	std::vector<cv::Point2f> points;
+};
+
+std::vector<cv::Point> points;
+int draggingPoint = -1;   // Index of the dragging point, -1 if no point is being dragged
+const int radius = 5;     // Radius for drawing points
+const int thickness = -1; // Fill the circle
+
+void onMouse(int event, int x, int y, int flags, void* userdata) {
+	PointData* pd = (PointData*)userdata;
+	if (event == cv::EVENT_LBUTTONDOWN) pd->points.push_back(cv::Point(x, y));
+}
+
 
 void undistort(void);
 void warpPerspectiveTransform(void);
 void showImg(void);
-void lineDetection(void);
+void getPix2mm(void);
+void getLength(void);
+PointData pointData_Up;
+PointData pointData_Front;
 
 int main(){
-	src = cv::imread("../../Image/LAB2/Front5.jpg",1);
+	src_upper_upper = cv::imread("../../Image/LAB2/Corner.jpg");
+	src_front_front = cv::imread("../../Image/LAB2/Front.jpg");
 	undistort();
+	std::cout<<"Click 4 points of the edge"<<std::endl;
+	cv::namedWindow	("Click 4 points of Upper Image",cv::WINDOW_GUI_NORMAL);
+	cv::imshow		("Click 4 points of Upper Image", undistortedsrc_upper);
+	cv::setMouseCallback("Click 4 points of Upper Image", onMouse, &pointData_Up);
+	cv::waitKey		(0);
+	std::cout<<"Click 4 points of the edge"<<std::endl;
+	cv::namedWindow	("Click 4 points of Front Image",cv::WINDOW_GUI_NORMAL);
+	cv::imshow		("Click 4 points of Front Image", undistortedsrc_front);
+	cv::setMouseCallback("Click 4 points of Front Image", onMouse, &pointData_Front);
+	cv::waitKey		(0);
 	warpPerspectiveTransform();
-	// Filter
-	for(int idx = 0; idx<10; idx++) cv::medianBlur(WarpOut,WarpOut,5);
-	// Edge
-	cv::Canny(WarpOut,Edge,60,170);
+ 	// Filter
+	for(int idx = 0; idx<N_IDX; idx++) {
+		cv::medianBlur(WarpOut,WarpOut,K_SIZE);
+		cv::medianBlur(WarpOut,WarpOut_F,K_SIZE);
+	}
 
-	cv::threshold(Edge, thresh, 100, 255, cv::THRESH_BINARY);
-	// cv::morphologyEx(thresh,thresh,cv::MORPH_CLOSE,cv::Mat());
-	// cv::morphologyEx(thresh,thresh,cv::MORPH_ERODE,cv::Mat());
-	// Hough
-	// lineDetection();
-
-	findContours(thresh, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-	cv::cvtColor(WarpOut, WarpOut,cv::COLOR_GRAY2BGR);
-	drawContours(WarpOut, contours, -1, cv::Scalar(0,0,255), 1);
+	getPix2mm();
+	Volume[CAM_Z] = 50.f;
+	float Vol = GetVolume(Volume);
+	std::cout<<"Volume = "<<Vol<<" mm^3"<<std::endl;
 
 	showImg();
 	cv::waitKey(0);
@@ -105,100 +128,60 @@ void undistort(void){
 	distCoeffs.at<double>(1, 0)   = k2;
 	distCoeffs.at<double>(2, 0)   = p1;
 	distCoeffs.at<double>(3, 0)   = p2;
-	cv::undistort(src, undistortedSrc, cameraMatrix, distCoeffs);
-	cv::cvtColor(undistortedSrc,undistortedSrc , cv::COLOR_BGR2GRAY);
+	cv::undistort(src_upper_upper, undistortedsrc_upper, cameraMatrix, distCoeffs);
+	cv::cvtColor(undistortedsrc_upper,undistortedsrc_upper , cv::COLOR_BGR2GRAY);
+	cv::undistort(src_front_front,undistortedsrc_front, cameraMatrix,distCoeffs);
+	cv::cvtColor(undistortedsrc_front,undistortedsrc_front, cv::COLOR_BGR2GRAY);
 }
 
-
-/* // This is Parallel3
 void warpPerspectiveTransform(void){
-	srcPoints.push_back(cv::Point2f(836, 1620));     // top-left		836, 1620
-	srcPoints.push_back(cv::Point2f(3249, 1595 ));    // top-right		3249, 1595
-	srcPoints.push_back(cv::Point2f(1013, 1911));     // bottom-left		1013, 1911
-	srcPoints.push_back(cv::Point2f(3115, 1911));     // bottom-right	3115, 1911
+	for (const auto& point : pointData_Up.points) src_Upper.push_back(point); //1198, 1043 //2112, 1039 //1189, 2874  //2100, 2924
+	//assign the Size of  output matrix
+	dstPoints_Upper.push_back(cv::Point2f(0, 0      ));          // top-left
+	dstPoints_Upper.push_back(cv::Point2f(200, 0    ));          // top-right
+	dstPoints_Upper.push_back(cv::Point2f(0, 800    ));          // bottom-left
+	dstPoints_Upper.push_back(cv::Point2f(200, 800  ));          // bottom-right
+	perspectiveMatrix = cv::getPerspectiveTransform(src_Upper, dstPoints_Upper);
+	cv::warpPerspective(undistortedsrc_upper, WarpOut, perspectiveMatrix, cv::Size(200, 800));
 
-	dstPoints.push_back(cv::Point2f(0, 0     ));      // top-left
-	dstPoints.push_back(cv::Point2f(400, 0   ));     // top-right
-	dstPoints.push_back(cv::Point2f(0, 100   ));     // bottom-left
-	dstPoints.push_back(cv::Point2f(400, 100 ));    // bottom-right
-	perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
-
-	std::cout<<perspectiveMatrix<<std::endl;
-}*/
-
-/*// Parallel 5
-void warpPerspectiveTransform(void){
-	srcPoints.push_back(cv::Point2f(1215, 1111));//1003, 1896 ));
-	srcPoints.push_back(cv::Point2f(3463, 1111));//3244, 1969 ));
-	srcPoints.push_back(cv::Point2f(1002, 1919));//1147, 2135 ));
-	srcPoints.push_back(cv::Point2f(3656, 1987));//3121, 2194 ));
-
-	dstPoints.push_back(cv::Point2f(0, 0     ));      // top-left
-	dstPoints.push_back(cv::Point2f(800, 0   ));      // top-right
-	dstPoints.push_back(cv::Point2f(0, 800   ));      // bottom-left
-	dstPoints.push_back(cv::Point2f(800, 800 ));      // bottom-right
-	perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
-	cv::warpPerspective(undistortedSrc, WarpOut, perspectiveMatrix, cv::Size(800, 800));
-
-	std::cout<<perspectiveMatrix<<std::endl;
-}*/
-
-/* // Upper1
-void warpPerspectiveTransform(void){
-	srcPoints.push_back(cv::Point2f(927, 832));
-	srcPoints.push_back(cv::Point2f(2219, 840));
-	srcPoints.push_back(cv::Point2f(931, 3345));
-	srcPoints.push_back(cv::Point2f(2156, 3337));
-
-	dstPoints.push_back(cv::Point2f(0, 0     ));      // top-left
-	dstPoints.push_back(cv::Point2f(400, 0   ));      // top-right
-	dstPoints.push_back(cv::Point2f(0, 800   ));      // bottom-left
-	dstPoints.push_back(cv::Point2f(400, 800 ));      // bottom-right
-	perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
-	cv::warpPerspective(undistortedSrc, WarpOut, perspectiveMatrix, cv::Size(400, 800));
-
-	std::cout<<perspectiveMatrix<<std::endl;
-}*/
-
-//Front5
-void warpPerspectiveTransform(void){
-	srcPoints.push_back(cv::Point2f(967, 979));
-	srcPoints.push_back(cv::Point2f(3087, 977));
-	srcPoints.push_back(cv::Point2f(967, 1523));
-	srcPoints.push_back(cv::Point2f(3076, 1523));
-
-	dstPoints.push_back(cv::Point2f(0, 0     ));      // top-left
-	dstPoints.push_back(cv::Point2f(800, 0   ));      // top-right
-	dstPoints.push_back(cv::Point2f(0, 200   ));      // bottom-left
-	dstPoints.push_back(cv::Point2f(800, 200 ));      // bottom-right
-	perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
-	cv::warpPerspective(undistortedSrc, WarpOut, perspectiveMatrix, cv::Size(800, 200));
-
-	std::cout<<perspectiveMatrix<<std::endl;
-}
-void lineDetection(){
-	std::vector<cv::Vec2f> lines;
-	cv::HoughLines(thresh, lines, 1, CV_PI / 180, 160, 0, 0);
-	// Draw the detected lines
-	for (cv::Vec2f line: lines){
-		float rho = line[0], theta = line[1];
-		cv::Point pt1, pt2;
-		double a = cos(theta), b = sin(theta);
-		double x0 = a * rho, y0 = b * rho;
-		pt1.x = cvRound(x0 + 1000 * (-b));
-		pt1.y = cvRound(y0 + 1000 * (a));
-		pt2.x = cvRound(x0 - 1000 * (-b));
-		pt2.y = cvRound(y0 - 1000 * (a));
-		cv::line(WarpOut, pt1, pt2, cv::Scalar(0, 0, 255), 3, cv::LINE_AA);
-	}
+	//Front
+	for (const auto& point : pointData_Front.points) src_Front.push_back(point); //665, 967  //3455, 895 //721, 1651 //3422, 1596
+	dstPoints_Front.push_back(cv::Point2f(0, 0      ));    // top-left
+	dstPoints_Front.push_back(cv::Point2f(800, 0    ));    // top-right
+	dstPoints_Front.push_back(cv::Point2f(0, 200    ));    // bottom-left
+	dstPoints_Front.push_back(cv::Point2f(800, 200  ));    // bottom-right
+	perspectiveMatrix = cv::getPerspectiveTransform(src_Front, dstPoints_Front);
+	cv::warpPerspective(undistortedsrc_front, WarpOut_F, perspectiveMatrix, cv::Size(800, 200));
 }
 
 void showImg(){
 	cv::namedWindow("Undistort",cv::WINDOW_GUI_NORMAL);
-	cv::imshow("Undistort", undistortedSrc);
+	cv::imshow("Undistort", undistortedsrc_upper);
 	cv::namedWindow("Warped", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Warped",WarpOut);
-	cv::namedWindow("Edge",cv::WINDOW_AUTOSIZE);
-	cv::imshow("Edge", Edge);
-	cv::imshow("Thresh", thresh);
+	cv::imshow("Warped Front",WarpOut_F);
 }
+
+void getPix2mm(void){
+	float bigTRx   = 0.0;
+	float bigTRy   = 0.0;
+	float bigTLx   = 0.0;
+	float bigTLy   = 0.0;
+	float bigBLx   = 0.0;
+	float bigBLy   = 0.0;
+	float bigBRx   = 0.0;
+	float bigBRy   = 0.0;
+	float smallTLx = 0.0;
+	float smallTLy = 0.0;
+	float smallBRx = 0.0;
+	float smallBRy = 0.0;
+
+	// Pixel To mm
+	PIXEL2MM_X = 0;//50/fabs(smallTLx- smallBRx);
+	PIXEL2MM_Y = 0;//50/fabs(smallTLy- smallBRy);
+	std::cout<<"Pixel to mm conversion (X-axis)  = "<<PIXEL2MM_X<<std::endl;
+	std::cout<<"Pixel to mm conversion (Y-axis)  = "<<PIXEL2MM_Y<<std::endl;
+	Volume[CAM_X] = PIXEL2MM_X;
+	Volume[CAM_Y] = PIXEL2MM_Y;
+}
+

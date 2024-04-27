@@ -20,7 +20,7 @@ def main():
     h= 1040
     x= 50
     w= 700
-    discontinuity = 30
+    discontinuity = 20
     roi = src[y:y + h, x:x + w]
     psrc = roi.copy()
     pre_src = Preprocess(psrc)
