@@ -3,9 +3,10 @@
                                              DLIP Python library
                                           Handong Global University
 ========================================================================================================================
-@Author: Jin Kwak
-@Date: 2024.04.23
-@Version: 0.0.0
+@Author  : Jin Kwak
+@Created : 2024.04.23
+@Modified: 2024.-
+@Version : 0.0.0
 """
 
 import numpy as np
@@ -19,5 +20,3 @@ def showImage(filename:str, imag1: np.ndarray) -> None:
     cv.namedWindow(filename, cv.WINDOW_GUI_NORMAL)
     cv.imshow(filename, imag1)
 
-# def curveFit(xArr: np.ndarray, yArr: np.ndarray , polynomial:int) -> np.ndarray:
-#     coeff

@@ -5,6 +5,9 @@
 # Prerequisites
 *.d
 
+# Video
+*.mp4
+
 # Compiled Object files
 *.slo
 *.lo

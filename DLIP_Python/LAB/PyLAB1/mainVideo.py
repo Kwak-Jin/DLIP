@@ -22,7 +22,7 @@ level3 = 120
 ROI_y = 200
 ROI_h = 1080 -ROI_y
 ROI_x = 200
-ROI_w = 700
+ROI_w = 500
 
 
 def main():
@@ -35,7 +35,6 @@ def main():
     #Threshold Values for height
 
 
-    cv.namedWindow('MyVideo', cv.WINDOW_AUTOSIZE)
     cv.namedWindow('Src', cv.WINDOW_AUTOSIZE)
 
     while True:
@@ -48,9 +47,11 @@ def main():
         psrc = roi.copy()
         pre_src = Preprocess(roi)
 
+        fx1 = np.zeros((ROI_w), np.int16)
         fx = np.zeros((ROI_w), np.int16)
+        xx1 = np.zeros((ROI_w), np.int16)
         xx = np.zeros((ROI_w), np.int16)
-        newFx = np.zeros((ROI_w), np.int32)
+        newFx  = np.zeros((ROI_w), np.int32)
         totalX = np.zeros((ROI_w), np.int16)
         for idx in range(0, ROI_w):  # col
             cutIdx = 0
@@ -64,9 +65,26 @@ def main():
             if (idx > 0) and (np.abs(fx[idx] - fx[idx - 1]) >= discontinuity):
                 cutIdx = idx
                 break
-
         fx = fx[:cutIdx]
         xx = xx[:cutIdx]
+        for idx in range(ROI_w-1,0,-1):  # col
+            cutIdx = 0
+            for tdx in range(0,ROI_h - 1):  # row
+                if pre_src[tdx, idx] == 255:
+                    fx1[idx] = tdx  # row
+                    frame = cv.circle(frame, (ROI_x + idx, ROI_y+fx1[idx]), 1, (255, 0, 255), -1)
+                    break
+            xx1[idx] = idx
+            if (idx<ROI_w-2) and (np.abs(fx1[idx] - fx1[idx + 1]) >= discontinuity):
+                cutIdx = idx
+                break
+        fx1 = fx1[cutIdx:]
+        xx1 = xx1[cutIdx:]
+        xx = np.concatenate((xx,xx1))
+        fx = np.concatenate((fx,fx1))
+        xx = np.hstack([xx,xx1])
+        fx = np.hstack([fx,fx1])
+
         for idx in range(0, ROI_w):
             totalX[idx] = idx
         coeff = np.polyfit(xx, fx, 2)
@@ -79,21 +97,19 @@ def main():
             psrc = cv.circle(psrc, (idx, newFx[idx]), 1, (255, 255, 0), -1)
 
         maxBend = max(newFx)
-        if maxBend < frame.shape[0] - level3 and maxBend >= frame.shape[0] - level2:
-            print("Level 2 detected")
+        #if maxBend < frame.shape[0] - level3 and maxBend >= frame.shape[0] - level2:
+        if maxBend < ROI_h - level3 and maxBend >= ROI_h - level2:
             _str = "Level 2 detected"
-        elif maxBend > frame.shape[0] - level3:
-            print("Level 3 Detected")
-            _str = ("Level 3 Detected")
+        elif maxBend > ROI_h - level3:
+            _str = "Level 3 Detected"
         else:
-            print("Level 1 Detected")
-            _str = ("Level 1 Detected")
+            _str = "Level 1 Detected"
 
+        frame = drawLine(frame)
         cv.putText(frame, _str, ((int)(ROI_h/2),(int)(ROI_w/2)) , cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         cv.imshow('Src',frame)
         cv.imshow('Canny',pre_src)
         cv.imshow("CurveFit", psrc)
-
 
     cv.destroyAllWindows()
     cap.release()
@@ -106,7 +122,7 @@ def Preprocess(img: np.ndarray) -> np.ndarray:
         _dst = cv.GaussianBlur(_dst, (kernel,kernel), 0)
 
     cv.equalizeHist(_dst, _dst)
-    _dst = cv.Canny(_dst, 40, 255)
+    _dst = cv.Canny(_dst, 30, 255)
     return _dst
 
 def checkEnd(ret:bool) -> int:
