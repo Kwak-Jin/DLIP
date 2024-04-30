@@ -6,7 +6,7 @@
 ========================================================================================================================
 @Author  : Jin Kwak
 @Created : 2024.04.27
-@Modified:2024.04.28
+@Modified: 2024.05.01
 @Version : 0.0.2
 """
 import cv2 as cv
@@ -99,14 +99,16 @@ def main():
         maxBend = max(newFx)
         #if maxBend < frame.shape[0] - level3 and maxBend >= frame.shape[0] - level2:
         if maxBend < ROI_h - level3 and maxBend >= ROI_h - level2:
-            _str = "Level 2 detected"
+            _str = "Level: 2"
         elif maxBend > ROI_h - level3:
-            _str = "Level 3 Detected"
+            _str = "Level: 3"
         else:
-            _str = "Level 1 Detected"
+            _str = "Level: 1"
 
         frame = drawLine(frame)
-        cv.putText(frame, _str, ((int)(ROI_h/2),(int)(ROI_w/2)) , cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        bend  = 'Score:'+maxBend.astype(np.str_)
+        cv.putText(frame, _str, ((int)(ROI_w),(int)(ROI_h/2)-50) , cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv.putText(frame, bend, ((int)(ROI_w),(int)(ROI_h/2)) , cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         cv.imshow('Src',frame)
         cv.imshow('Canny',pre_src)
         cv.imshow("CurveFit", psrc)
