@@ -122,12 +122,12 @@ def Preprocess(img: np.ndarray) -> np.ndarray:
         _dst = cv.GaussianBlur(_dst, (kernel,kernel), 0)
 
     cv.equalizeHist(_dst, _dst)
-    _dst = cv.Canny(_dst, 30, 255)
+    _dst = cv.Canny(_dst, 60, 255)
     return _dst
 
 def checkEnd(ret:bool) -> int:
     if cv.waitKey(30) & 0xFF == 27 or not ret:
-        print('Press ESC to stop')
+        print('Video End!')
         flag = NOK
     else:
         flag = YOK
