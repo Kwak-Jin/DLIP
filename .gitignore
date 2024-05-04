@@ -6,7 +6,7 @@
 *.d
 
 # Video
-*.mp4
+.mp4
 
 # Compiled Object files
 *.slo
