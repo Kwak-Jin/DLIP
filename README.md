@@ -12,9 +12,9 @@
 ## Lab 1   [LAB 1 Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_LAB1_21900031_JinKwak.md)
 Grayscale Segmentation
 
-## Lab 2 (Industrial Problem) [LAB 2 Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_LAB2_21900031_JinKwak.md)
+## Lab 2 (Industrial Problem) [LAB 2 Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_Lab2_21900031_JinKwak.md)
 1. Measure length, height and width of a rectangular object(brick) with 2D camera
 [YouTube Link](https://www.youtube.com/watch?v=Vdq63BO9seQ&t=1s)
 
-## Lab 3 (Industrial Problem) [LAB 3 Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_LAB3_21900031_JinKwak.md)
+## Lab 3 (Industrial Problem) [LAB 3 Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_Lab3_21900031_JinKwak.md)
 1. Tension detection of Rolling Metal Sheet
