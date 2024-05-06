@@ -1,12 +1,12 @@
 """
 ========================================================================================================================
                             DLIP LAB 3 Python Tension Detection of Rolling Metal Sheet
-                                              Challenging Video
+                                       Challenging Video using np.zeros()
                                           Handong Global University
 ========================================================================================================================
 @Author  : Jin Kwak
 @Created : 2024.04.27
-@Modified: 2024.05.01
+@Modified: 2024.05.05
 @Version : 0.0.2
 """
 import cv2 as cv
@@ -48,17 +48,16 @@ def main():
         pre_src = preprocess(roi)
 
         fx1 = np.zeros((ROI_w), np.int16)
-        fx = np.zeros((ROI_w), np.int16)
+        fx  = np.zeros((ROI_w), np.int16)
         xx1 = np.zeros((ROI_w), np.int16)
-        xx = np.zeros((ROI_w), np.int16)
+        xx  = np.zeros((ROI_w), np.int16)
         newFx  = np.zeros((ROI_w), np.int32)
         totalX = np.zeros((ROI_w), np.int16)
-        for idx in range(0, ROI_w):  # col
-            cutIdx = 0
+        cutIdx = 0
+        for idx in range(0, ROI_w):              # col
             for tdx in range(ROI_h - 1, 0, -1):  # row
                 if pre_src[tdx, idx] == 255:
-                    fx[idx] = tdx  # row
-                    frame = cv.circle(frame, (ROI_x + idx, ROI_y+fx[idx]), 1, (255, 0, 255), -1)
+                    fx[idx] = tdx  # level
                     psrc = cv.circle(psrc, (idx, fx[idx]), 1, (255, 0, 255), -1)
                     break
             xx[idx] = idx
@@ -91,28 +90,27 @@ def main():
         coeff = np.polyfit(xx, fx, 2)
         if coeff[0] > 0:
             coeff[0]  = -coeff[0]
-
-        for cnt in range(0, ROI_w):
-            newFx[cnt] = (int)(coeff[0] * (totalX[cnt] ** 2) + coeff[1] * totalX[cnt] + coeff[2])
-        for idx in range(0, ROI_w):
-            psrc = cv.circle(psrc, (idx, newFx[idx]), 1, (255, 255, 0), -1)
-
+        maxY = 0
+        for x in range(0, frame.shape[1] - 1):
+            newY = coeff[0] * (x - ROI_x) ** 2 + coeff[1] * (x - ROI_x) + coeff[2] + ROI_y
+            newY = int(newY)
+            if newY> maxY:
+                maxY = newY
+            frame = cv.circle(frame, (x, newY), 1, (255, 255, 0), -1)
         """ After Polyfit  """
-        maxBend = max(newFx)
-        #if maxBend < frame.shape[0] - level3 and maxBend >= frame.shape[0] - level2:
-        if maxBend < ROI_h - level3 and maxBend >= ROI_h - level2:
+        if maxY < frame.shape[0] - level3 and maxY >= frame.shape[0] - level2:
             _str = "Level: 2"
-        elif maxBend > ROI_h - level3:
+        elif maxY > frame.shape[0] - level3:
             _str = "Level: 3"
         else:
             _str = "Level: 1"
 
         frame = drawLevelBound(frame)
-        bend  = 'Score:'+maxBend.astype(np.str_)
+        bend  = 'Score:' + str(maxY)
         cv.putText(frame, _str, ((int)(ROI_w),(int)(ROI_h/2)-50) , cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         cv.putText(frame, bend, ((int)(ROI_w),(int)(ROI_h/2)) , cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-        cv.imshow('Src',frame)
-        cv.imshow('Canny',pre_src)
+        cv.imshow('Src'     ,frame)
+        cv.imshow('Canny'   ,pre_src)
         cv.imshow("CurveFit", psrc)
 
     cv.destroyAllWindows()
@@ -130,7 +128,7 @@ def preprocess(img: np.ndarray) -> np.ndarray:
     return _dst
 
 def checkEnd(ret:bool) -> int:
-    if cv.waitKey(30) & 0xFF == 27 or not ret:
+    if cv.waitKey(10) & 0xFF == 27 or not ret:
         print('Video End!')
         flag = NOK
     else:
