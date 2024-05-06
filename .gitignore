@@ -156,7 +156,7 @@ fabric.properties
 
 ### Images ###
 # JPEG
-*.jpg
+#*.jpg
 *.jpeg
 *.jpe
 *.jif
@@ -185,8 +185,6 @@ fabric.properties
 # Web P
 *.webp
 
-# Portable Network Graphics
-*.png
 
 # Animated Portable Network Graphics
 *.apng
