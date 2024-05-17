@@ -22,3 +22,6 @@ add_subdirectory(Tutorial)
 add_subdirectory(LAB)
 add_subdirectory(Test)
 add_subdirectory(ForFun)
+
+
+add_executable(OGM ogm.cpp)

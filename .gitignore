@@ -7,6 +7,19 @@
 
 # Video
 .mp4
+# Train, Test Dataset
+DLIP_Python/Exercise/*.png
+DLIP_Python/Exercise/*.jpg
+DLIP_Python/Exercise/*.jpeg
+DLIP_Python/Exercise/kagglecatsanddogs/
+DLIP_Python/Exercise/data/
+DLIP_Python/Tutorial/*.png
+DLIP_Python/Tutorial/data/
+
+calibration.resource/
+# pth files
+*.pth
+
 
 # Compiled Object files
 *.slo
