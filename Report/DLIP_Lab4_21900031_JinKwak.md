@@ -107,9 +107,7 @@ parking_spaces = [
 
 ​	These coordinates represent each edge of parking spaces. As the image is taken in the view of CCTV not a bird-eye view, the parking spaces are trapezoid-shaped which is visualized in Figure 2. As there were always occupied spaces in the video, the exact parking space edges are not selected. However, the bounding box is always a rectangle without any rotation. To maximize the overlapped area, the parking spaces are carefully selected by hands to enlarge the parking space height. Furthermore, `LowerY`, `UpperY` is the average y- coordinates of the parking spaces in the y direction of pixel frame. Constant `LowerY` is later used to consider the existence of a car in the parking lot(compare with car's center)
 
-<p align='center'><img src="D:\DLIP\Report_image\LAB4\DLIP_ParkingArea.jpg" alt="DLIP_ParkingArea" style="zoom:80%;" /> Figure 2. Divided Parking Spaces</p>
-
-
+<p align='center'><img src="..\Report_image\LAB4\DLIP_ParkingArea.jpg" alt="DLIP_ParkingArea" style="zoom:80%;" /> Figure 2. Divided Parking Spaces</p>
 
 #### Python Packages
 
@@ -128,6 +126,8 @@ This package is used to calculate the overlapped area of the bounding box and pr
 # Result and Discussion
 
 ## 1. Final Result
+
+
 
 **[Demo Video Embedded](https://youtu.be/1wIuSlom4ok)**
 
