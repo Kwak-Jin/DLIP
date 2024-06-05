@@ -2,7 +2,7 @@
 
 # Parking Management System
 
-**Date:**  2024.06.04
+**Date:**  2024.06.06
 
 **Author:**  Jin Kwak/ 21900031
 
@@ -156,6 +156,8 @@ The number of occupied space and free space is detected by using CNN model.
 
 Using ROI and area calculation, the bounding box is only drawn in the ROI area.
 
+At the top of each frame, the parked location and free parking spaces are displayed.
+
 **[Demo Video Embedded](https://youtu.be/GdTP1IMIK-g)**
 
 ## 2. Discussion
@@ -173,7 +175,7 @@ Using ROI and area calculation, the bounding box is only drawn in the ROI area.
 1. There was no ground truth of number of vehicles in the parking lot. As the YOLO V8 performs well in the video, there was only countable slight miss detection(No false detection but true negative) 
 1. Bounding boxes are only drawn on the vehicles in the parking space
 
-Therefore, the program achieves the purpose of the lab introduced in the ## 3. Procedure
+Therefore, the program achieves the purpose of the lab introduced in the **Procedure**
 
 ## Improvement
 
