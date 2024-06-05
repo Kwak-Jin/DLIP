@@ -30,10 +30,9 @@ For human&camera replacement, the system should be able to detect the depth and 
 
 - Use Python OpenCV (*.py)
 - Deep Learning Model
-  - Mono-Depth Estimation: []()
+  - Mono-Depth Estimation: [Metric3D v2](https://arxiv.org/pdf/2404.15506v1)
   - Object Detection: [YOLO V8](https://www.ultralytics.com/yolo)
 - image
-  - Curvature edge
 
 ## 2. Preparation
 
