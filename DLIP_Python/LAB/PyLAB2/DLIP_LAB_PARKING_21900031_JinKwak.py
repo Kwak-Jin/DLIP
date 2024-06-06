@@ -51,6 +51,7 @@ def main() -> None:
         result = model.predict(source=frame, save=False, save_txt=False)
         bbox_coords_cpu = result[0].boxes.xyxy.to('cpu').numpy()
         class_cpu = result[0].boxes.cls.detach().cpu().numpy()
+
         occupied_space = 0
         parking_idx = []
         for bbox_idx in range(len(bbox_coords_cpu)):

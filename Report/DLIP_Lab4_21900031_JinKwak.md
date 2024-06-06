@@ -172,8 +172,17 @@ At the top of each frame, the parked location and free parking spaces are displa
 
 ## Lab Purpose Achievement
 
-1. There was no ground truth of number of vehicles in the parking lot. As the YOLO V8 performs well in the video, there was only countable slight miss detection(No false detection but true negative) 
-1. Bounding boxes are only drawn on the vehicles in the parking space
+The first 1501 frames are compared with the true data. Confusion Matrix is drawn in Figure 5. 
+
+As the maximum number of miss detected objects for each frame is 1, the recall, precision, F1 score can be calculated with simple calculation.
+
+1. The accuracy of the model compared with 1501 frames is 99.07%
+1. Recall of the program is 99.4%
+1. Precision of the program is 99.7%
+1. F1 Score of the program is 0.9953
+1. Bounding boxes are only drawn on the vehicles in the parking space, therefore no true negatives.
+
+<p align='center'><img src="..\Report_image\LAB4\ConfusionMatrix.png" alt="ConfusionMatrix" style="zoom:80%;" /> Figure 5. Confusion Matrix </p>
 
 Therefore, the program achieves the purpose of the lab introduced in the **Procedure**
 
