@@ -1,5 +1,5 @@
 # DLIP   
-## School : Handong Global University  
+## School : Handong Global University  School of Mechanical and Control Engineering
   
 ## Course : Image Processing with Deep Learning(2024-1)   
    
@@ -25,3 +25,10 @@
 ## Lab 4 (Object Detection) [LAB 4 Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_Lab4_21900031_JinKwak.md)
 [YouTube Link](https://youtu.be/GdTP1IMIK-g)  
 1. Parking Space Detection using CNN model
+
+
+## Lab Final (Unmanned Ground Sensor System)[Final Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_LAB5_Final_21900031_JinKwak.md)     
+[YouTube Link](https://www.youtube.com/watch?v=UDJZypf0S9I&t=6s)   
+1. Object Classification Model (YOLO v8)
+2. Depth Estimation Model ([Metric3D](https://github.com/YvanYin/Metric3D))
+
