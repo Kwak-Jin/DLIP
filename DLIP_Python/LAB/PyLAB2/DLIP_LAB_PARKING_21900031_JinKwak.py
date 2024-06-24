@@ -45,7 +45,7 @@ def main() -> None:
     f = open("counting_result.txt", "w")
     while isStop == False:
         ret, frame = cap.read()
-        if not ret or (cv.waitKey(1) & 0xFF == (' ')):
+        if not ret or (cv.waitKey(1) & 0xFF == (27)):
             isStop = True
             break
         result = model.predict(source=frame, save=False, save_txt=False)
