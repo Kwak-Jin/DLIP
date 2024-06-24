@@ -23,4 +23,5 @@
 1. Tension detection of Rolling Metal Sheet
 
 ## Lab 4 (Object Detection) [LAB 4 Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_Lab4_21900031_JinKwak.md)
+[YouTube Link](https://youtu.be/GdTP1IMIK-g)  
 1. Parking Space Detection using CNN model
