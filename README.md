@@ -1,5 +1,5 @@
 # DLIP   
-## School : Handong Global University  School of Mechanical and Control Engineering
+## Handong Global University  School of Mechanical and Control Engineering
   
 ## Course : Image Processing with Deep Learning(2024-1)   
    
