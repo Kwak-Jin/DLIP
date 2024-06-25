@@ -27,7 +27,7 @@
 1. Parking Space Detection using CNN model
 
 
-## Lab Final (Unmanned Ground Sensor System)[Final Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_LAB5_Final_21900031_JinKwak.md)     
+## Lab Final (Unmanned Ground Sensor System) [Final Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_LAB5_Final_21900031_JinKwak.md)     
 [YouTube Link](https://www.youtube.com/watch?v=UDJZypf0S9I&t=6s)   
 1. Object Classification Model (YOLO v8)
 2. Depth Estimation Model ([Metric3D](https://github.com/YvanYin/Metric3D))
