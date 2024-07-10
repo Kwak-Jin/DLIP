@@ -6,8 +6,9 @@
 ## Author/ID: 곽진(Kwak,Jin) 21900031   
    
 1. 고전 영상 처리
-2. 딥 러닝
-3. 오픈소스 라이브러리 활용
+2. 딥 러닝 모델 설계 [Design DL model](DLIP_Python/myModel)
+3. 딥 러닝 모델 사용 [Use DL model](DLIP_Python/LAB/PyLAB2)
+4. 오픈소스 라이브러리 활용
 
 ## Lab 1   [LAB 1 Report](https://github.com/Kwak-Jin/DLIP/blob/master/Report/DLIP_LAB1_21900031_JinKwak.md)
 1. Grayscale Segmentation
