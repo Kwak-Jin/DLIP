@@ -63,7 +63,7 @@ In this lab,  the author is required to create a simple program that
 
 Flowchart of the program is described in Figure 1. The preprocessing part in the left top box is subdivided into ROI selection, dividing the parking spaces, and get Pre-trained YOLO model (`yolo8s.pt`) 
 
-<p/ align = 'center'><img src="..\Report_image\LAB4\LAB4FlowChart.png" alt="LAB4FlowChart"  /> Figure 1. Flowchart of the Program </p>
+<p align = 'center'><img src="..\Report_image\LAB4\LAB4FlowChart.png" alt="LAB4FlowChart"  /><br> Figure 1. Flowchart of the Program </p>
 
 ## 2. Procedure
 
@@ -107,7 +107,7 @@ parking_spaces = [
 
 ​	These coordinates represent each edge of parking spaces. As the image is taken in the view of CCTV not a bird-eye view, the parking spaces are trapezoid-shaped which is visualized in Figure 2. As there were always occupied spaces in the video, the exact parking space edges are not selected. However, the bounding box is always a rectangle without any rotation. To maximize the overlapped area, the parking spaces are carefully selected by hands to enlarge the parking space height. Furthermore, `LowerY`, `UpperY` is the average y- coordinates of the parking spaces in the y direction of pixel frame. Constant `LowerY` is later used to consider the existence of a car in the parking lot(compare with car's center)
 
-<p align='center'><img src="..\Report_image\LAB4\DLIP_ParkingArea.jpg" alt="DLIP_ParkingArea" style="zoom:80%;" /> Figure 2. Divided Parking Spaces</p>
+<p align='center'><img src="..\Report_image\LAB4\DLIP_ParkingArea.jpg" alt="DLIP_ParkingArea" style="zoom:80%;" /> <br> Figure 2. Divided Parking Spaces</p>
 
 #### Python Packages
 
@@ -130,7 +130,7 @@ This package is used to calculate the overlapped area of the bounding box and pr
 #### Class selection
 
 To select the correct classes in the parking lot, classes of detected objects allowed are car, bus and truck. 
-<p align='center'><img src="..\Report_image\LAB4\DLIP_parking_test_video_screenshot_03.06.2024.png" alt="DLIP_parking_test_video_screenshot_03.06.2024" style="zoom:120%;" /> Figure 3. YOLO model Object detection in ROI </p>
+<p align='center'><img src="..\Report_image\LAB4\DLIP_parking_test_video_screenshot_03.06.2024.png" alt="DLIP_parking_test_video_screenshot_03.06.2024" style="zoom:120%;" /><br> Figure 3. YOLO model Object detection in ROI </p>
 
 #### Occupancy Check
 
@@ -166,7 +166,7 @@ At the top of each frame, the parked location and free parking spaces are displa
 
 1. Occupied parking space can be checked using different methods. To conservatively detect the area, I calculated the area overlapped by a bounding box and predefined parking lot. If the area calculated is over a threshold, the program detects the vehicle is occupying a parking space. Else, the bottommost coordinate can be checked with the entrance of the parking space.
 
-<p align='center'><img src="..\Report_image\LAB4\DLIP_parking_test_video_screenshot_06.06.2024.png" alt="DLIP_parking_test_video_screenshot_06.06.2024" style="zoom:75%;" /> Figure 4. Bounding box at the vehicles occupying parking lot </p>
+<p align='center'><img src="..\Report_image\LAB4\DLIP_parking_test_video_screenshot_06.06.2024.png" alt="DLIP_parking_test_video_screenshot_06.06.2024" style="zoom:75%;" /> <br> Figure 4. Bounding box at the vehicles occupying parking lot </p>
 
 # Conclusion
 
@@ -182,7 +182,7 @@ As the maximum number of miss detected objects for each frame is 1, the recall, 
 1. F1 Score of the program is 0.9953
 1. Bounding boxes are only drawn on the vehicles in the parking space, therefore no true negatives.
 
-<p align='center'><img src="..\Report_image\LAB4\ConfusionMatrix.png" alt="ConfusionMatrix" style="zoom:80%;" /> Figure 5. Confusion Matrix </p>
+<p align='center'><img src="..\Report_image\LAB4\ConfusionMatrix.png" alt="ConfusionMatrix" style="zoom:80%;" /><br> Figure 5. Confusion Matrix </p>
 
 Therefore, the program achieves the purpose of the lab introduced in the **Procedure**
 
